@@ -1,6 +1,14 @@
 <?php
 namespace Clicalmani\Routing;
 
+/**
+ * Guard Class
+ * 
+ * Route guards
+ * 
+ * @package clicalmani/routing 
+ * @author @clicalmani
+ */
 class Guard 
 {
     /**

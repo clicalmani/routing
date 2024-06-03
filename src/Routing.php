@@ -3,6 +3,12 @@ namespace Clicalmani\Routing;
 
 use Clicalmani\Fundation\Providers\ServiceProvider;
 
+/**
+ * Routing Class
+ * 
+ * @package clicalmani/routing 
+ * @author @clicalmani
+ */
 class Routing
 {
     use Method;
@@ -66,7 +72,9 @@ class Routing
         switch( count($parameters) ) {
             case 1: return new Group($parameters[0]);
             case 2: 
+                /** @var array */
                 $args = $parameters[0];
+                /** @var callable */
                 $callback = $parameters[1];
                 break;
         }
@@ -77,7 +85,6 @@ class Routing
         
         // Middleware
         if ( isset($args['middleware']) AND $name = $args['middleware']) $this->middleware($name, $callback);
-            
         
         return null;
     }
@@ -266,6 +273,7 @@ class Routing
              * the current route signature requirements.
              */
             $subgroup = new Group;
+
             if ($old_group->controller) $subgroup->controller = $old_group->controller;
 
             $options = $route->getOptions();
@@ -342,6 +350,7 @@ class Routing
 
         if ($route = $this->findByName($name)) {
 
+            /** @var \Clicalmani\Routing\Path */
             foreach ($route as $index => $path) {
                 if ($path->isParameter() && @$params[$index]) $path->value = $params[$index];
             }
@@ -360,6 +369,7 @@ class Routing
      */
     public function findByName(string $name) : mixed
     {
+        /** @var \Clicalmani\Routing\Route */
         foreach (Cache::getRoutesByVerb($this->getClientVerb()) as $route) {
             if ($route->name === $name) return $route;
         }

@@ -73,7 +73,7 @@ class Path
 
         $value = (string)$this->value;
         $valid = $this->validator->test($value);
-        $this->value = $value;
+        // $this->value = $value;
 
         return $valid;
     }

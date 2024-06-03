@@ -151,13 +151,29 @@ class Validator
     }
 
     /**
+     * Validate parameter's value against any validator.
+     * 
+     * @param string|array $params
+     * @param string $signature
+     * @return static
+     */
+    public function where(string|array $params, string $signature) : static
+    {
+        $params = (array)$params;
+
+        foreach ($params as $param) $this->revalidateParam($param, $signature);
+        
+        return $this;
+    }
+
+    /**
      * Validate parameter's value against a regular expression.
      * 
      * @param string|array $params
      * @param string $pattern A regular expression pattern without delimeters. Back slash (/) character will be used as delimiter
      * @return static
      */
-    public function where(string|array $params, string $pattern) : static
+    public function wherePattern(string|array $params, string $pattern) : static
     {
         $params = (array)$params;
 

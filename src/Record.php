@@ -30,7 +30,13 @@ class Record
         Cache::stopRecording();
     }
 
-    public static function add(Route $route)
+    /**
+     * Add recored route
+     * 
+     * @param \Clicalmani\Routing\Route
+     * @return void
+     */
+    public static function add(Route $route) : void
     {
         Cache::record($route);
     }

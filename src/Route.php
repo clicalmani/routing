@@ -5,6 +5,12 @@ use Clicalmani\Fundation\Http\Requests\Request;
 use Clicalmani\Fundation\Http\Response\Response;
 use Clicalmani\Fundation\Providers\ServiceProvider;
 
+/**
+ * Route Class
+ * 
+ * @package clicalmani/routing 
+ * @author @clicalmani
+ */
 class Route extends \ArrayObject
 {
     /**
@@ -51,7 +57,7 @@ class Route extends \ArrayObject
     private array $resources = [];
 
     /**
-     * Route middlewares
+     * Route hooks
      * 
      * @var array
      */
@@ -59,6 +65,13 @@ class Route extends \ArrayObject
                                 'before' => null, // Before navigation hook
                                 'after' => null   // After navigation hook
                             ];
+
+    /**
+     * Redirect
+     * 
+     * @var int
+     */
+    private int|null $redirect = null;
 
     /**
      * @override
@@ -113,6 +126,7 @@ class Route extends \ArrayObject
     {
         $ret = [];
         
+        /** @var \Clicalmani\Routing\Path */
         foreach ($this as $path) {
             $ret[] = $path->name;
         }
@@ -164,7 +178,8 @@ class Route extends \ArrayObject
     {
         $paths = [];
 
-        foreach ($this as $index => $path)
+        /** @var \Clicalmani\Routing\Path */
+        foreach ($this as $path)
             if (preg_match('/^\?:/', $path->name)) $paths[] = $path;
 
         return $paths;
@@ -179,6 +194,7 @@ class Route extends \ArrayObject
     {
         $paths = [];
 
+        /** @var \Clicalmani\Routing\Path */
         foreach ($this as $path) $paths[] = $path;
 
         return $paths;
@@ -193,6 +209,10 @@ class Route extends \ArrayObject
     {
         $options = [];
 
+        /** 
+         * @var int $index 
+         * @var \Clicalmani\Routing\Path 
+         */
         foreach ($this as $index => $path) 
             if ($path->isOptional()) $options[] = $index;
 
@@ -266,6 +286,7 @@ class Route extends \ArrayObject
     {
         $count = 0;
 
+        /** @var \Clicalmani\Routing\Route */
         foreach (Cache::getRoutesByVerb($this->verb) as $route) {
             if ($route->name === $this->name) $count++;
         }
@@ -420,6 +441,7 @@ class Route extends \ArrayObject
             case 'action': return $this->action;
             case 'verb': return $this->verb;
             case 'name': return $this->name;
+            case 'redirect': return $this->redirect;
         }
     }
 
@@ -430,6 +452,7 @@ class Route extends \ArrayObject
             case 'action': $this->action = $value; break;
             case 'verb': $this->verb = $value; break;
             case 'name': $this->name = $value; break;
+            case 'redirect': $this->redirect = $value; break;
         }
     }
 
@@ -437,6 +460,7 @@ class Route extends \ArrayObject
     {
         $route = new self;
 
+        /** @var \Clicalmani\Routing\Path */
         foreach ($this as $path) $route[] = $path;
 
         return $route;

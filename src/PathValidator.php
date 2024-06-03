@@ -21,6 +21,7 @@ class PathValidator extends InputValidator
     public function __construct(private string $name, string $signature)
     {
         parent::__construct(true);
+        
         $this->signatures = [
             $name => $signature
         ];
@@ -38,7 +39,7 @@ class PathValidator extends InputValidator
         $valid = parent::sanitize($input, $this->signatures);
 
         if ( TRUE == $valid ) $value = $input[$this->name];
-
+        
         return $valid;
     }
 }

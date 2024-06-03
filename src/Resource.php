@@ -3,6 +3,12 @@ namespace Clicalmani\Routing;
 
 use Clicalmani\Fundation\Collection\Collection;
 
+/**
+ * Resource Class
+ * 
+ * @package clicalmani/routing 
+ * @author @clicalmani
+ */
 class Resource extends \ArrayObject
 {
     public function __construct(private ?Collection $storage = new Collection) {}
@@ -16,6 +22,7 @@ class Resource extends \ArrayObject
         if ( get_class($value) === \Clicalmani\Routing\Validator::class )
             $this->storage->add($value->route);
         elseif ( get_class($value) === \Clicalmani\Routing\Group::class ) {
+            /** @var \Clicalmani\Routing\Route */
             foreach ($value as $route) {
                 $this->storage->add($route);
             }

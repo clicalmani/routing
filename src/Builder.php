@@ -3,6 +3,12 @@ namespace Clicalmani\Routing;
 
 use App\Providers\RouteServiceProvider;
 
+/**
+ * Builder Class
+ * 
+ * @package clicalmani/routing 
+ * @author @clicalmani
+ */
 class Builder
 {
     /**
