@@ -17,7 +17,7 @@ trait Method
     public function all() : array
     {
         $signatures = [];
-
+        
         foreach (Cache::getRoutes() as $entry) {
             foreach ($entry as $route) {
                 $signatures[] = $route->signature;
@@ -216,7 +216,7 @@ trait Method
             'delete' => ['destroy' => ':id']
         ];
 
-        ( new Group(function() use($routes, $routines, $controller) {
+        ( new Group(function() use($routes, $routines, $controller, $actions) {
             foreach ($routes as $method => $sigs) {
                 foreach ($sigs as $action => $sig) {
                     if ( !empty($actions) && !in_array($action, $actions) ) continue;
