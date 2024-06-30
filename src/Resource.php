@@ -19,14 +19,7 @@ class Resource extends \ArrayObject
 	 */
 	public function offsetSet(mixed $index, mixed $value) : void
 	{
-        if ( get_class($value) === \Clicalmani\Routing\Validator::class )
-            $this->storage->add($value->route);
-        elseif ( get_class($value) === \Clicalmani\Routing\Group::class ) {
-            /** @var \Clicalmani\Routing\Route */
-            foreach ($value as $route) {
-                $this->storage->add($route);
-            }
-        }
+        $this->storage->add($value);
     }
 
     /**

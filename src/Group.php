@@ -189,6 +189,7 @@ class Group
     public function __get(string $name)
     {
         if ($name === 'controller') return $this->controller;
+        if ($name === 'routes') return $this->routes;
     }
 
     /**
@@ -202,5 +203,6 @@ class Group
     public function __set(string $name, mixed $value)
     {
         if ($name === 'controller') $this->controller = $value;
+        if ($name === 'routes') $this->routes = $value;
     }
 }

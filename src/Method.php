@@ -219,10 +219,19 @@ trait Method
         ( new Group(function() use($routes, $routines, $controller, $actions) {
             foreach ($routes as $method => $sigs) {
                 foreach ($sigs as $action => $sig) {
+                    
                     if ( !empty($actions) && !in_array($action, $actions) ) continue;
                     /** @var \Clicalmani\Routing\Validator|\Clicalmani\Routing\Group */
-                    $validator = $this->register($method, $sig, [$controller, $action]);
-                    $routines[] = $validator;
+                    $return = $this->register($method, $sig, [$controller, $action]);
+                    
+                    if (get_class($return) === \Clicalmani\Routing\Validator::class) {
+                        $routines[] = $return->route;
+                    } else {
+                        /** @var \Clicalmani\Routing\Route */
+                        foreach ($return->routes as $route) {
+                            $routines[] = $route;
+                        }
+                    }
                 }
             }
         }) )->prefix($resource);
