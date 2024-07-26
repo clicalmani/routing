@@ -95,7 +95,7 @@ class Builder
         $parameters = $this->parameters($client, $matches);
         
         foreach ($matches as $route) {
-
+            
             if (!$parameters && $route->getParameters()) continue;
             
             foreach ($parameters as $parameter) {
@@ -205,7 +205,7 @@ class Builder
      */
     public function build() : Route|null
     {
-        $route = $this->locate( 
+        $route = $this->locate(
             $this->sort( 
                 \Clicalmani\Fundation\Routing\Route::getClientVerb()
             ) 

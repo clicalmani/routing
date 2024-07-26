@@ -37,7 +37,7 @@ class PathValidator extends InputValidator
     {
         $input[$this->name] = $value;
         $valid = parent::sanitize($input, $this->signatures);
-
+        
         if ( TRUE == $valid ) $value = $input[$this->name];
         
         return $valid;

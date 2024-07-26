@@ -229,9 +229,10 @@ class Routing
              * Controller method action
              */
             elseif ( is_string($callback) && $callback ) {
-
-                if ($group = Cache::currentGroup() AND $group->controller) {
-                    $route->action = [$group->controller, $callback];
+                
+                if ($group = Cache::currentGroup()) {
+                    if ($group->controller) $route->action = [$group->controller, $callback];
+                    else $route->action = [$callback, '__invoke'];
                 }
             } 
 

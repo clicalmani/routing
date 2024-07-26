@@ -70,11 +70,11 @@ class Path
     public function isValid() : bool
     {
         if (!$this->validator) return true;
-
+        
         $value = (string)$this->value;
         $valid = $this->validator->test($value);
         // $this->value = $value;
-
+        
         return $valid;
     }
 

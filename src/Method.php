@@ -209,7 +209,7 @@ trait Method
         $routines = new Resource;
 
         $routes = [
-            'get'    => ['index' => '', 'create' => ':id/?:hash'],
+            'get'    => ['index' => '', 'create' => ':id/?:' . \Clicalmani\Fundation\Auth\EncryptionServiceProvider::hashParameter()],
             'post'   => ['store' => ''],
             'put'    => ['update' => ':id'],
             'patch'  => ['update' => ':id'],

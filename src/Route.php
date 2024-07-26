@@ -148,7 +148,7 @@ class Route extends \ArrayObject
 
         /** @var \Clicalmani\Routing\Path */
         foreach ($route as $path) {
-            if ($path->isParameter() && $path->isValid()) {
+            if ($path->isParameter()) {
                 if ($path->isValid()) $ret[] = $path->value;
                 else $ret[] = $path->name;
             } else $ret[] = $path->name;
