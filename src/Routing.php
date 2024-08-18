@@ -96,7 +96,7 @@ class Routing
      * @param mixed $callback If omitted the middleware will be considered as an inline middleware
      * @return mixed
      */
-    public function middleware(string $name_or_class, mixed $callback = null) : mixed
+    public function middleware(string $name_or_class, mixed $callback = null)
     {
         if ( $middleware = $this->getMiddleware($name_or_class) ) 
             return $this->registerMiddleware($callback ? $callback: $middleware, $name_or_class);
@@ -265,7 +265,7 @@ class Routing
             
             /** @var \Clicalmani\Routing\Group */
             $old_group = Cache::currentGroup();
-
+            
             /**
              * |------------------------------------------------------
              * | Create a subgroup
@@ -281,21 +281,14 @@ class Routing
             $route->makeRequired();
             
             if ($this->isGrouping() && $this->getClientVerb() === $verb && $old_group) {
-
+                
                 $route->action = [$old_group->controller, $callback];
 
                 $old_group->addRoute($route); // Add route to its own group for prefixing
             }
 
             $signature = $route->getSignature(); // Options should start from the current route signature.
-            
-            foreach ($options as $path) {
-
-                $path->makeRequired();
-                $path->setValidator(null);
-
-                $signature .= '/' . $path->name; // Option's signature
-
+            $setValidator = function(string $signature) use($verb, $callback, $bind, $old_group, $subgroup) {
                 /**
                  * Option validator
                  * 
@@ -311,6 +304,16 @@ class Routing
                                                              // Remember if validations are also present on the main
                                                              // roup they will be applied.
                 }
+            };
+            
+            foreach ($options as $index => $path) {
+                $path->makeRequired();
+                $path->setValidator(null);
+                /** @var string */
+                $name = $path->name;
+                $setValidator("$signature/$name");
+                for ($i = 0; $i < $index; $i++) $setValidator("$signature/{$options[$i]->name}/$name");
+                for ($j = $index + 1; $j < count($options); $j++) $setValidator("$signature/$name/{$options[$i]->name}");
             }
 
             $subgroup->run();

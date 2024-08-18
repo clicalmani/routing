@@ -115,7 +115,7 @@ class Path
     }
 
     /**
-     * Remove path validator
+     * Set path validator
      * 
      * @param \Clicalmani\Routing\PathValidator|null $validator
      * @return void
