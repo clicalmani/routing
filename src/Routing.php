@@ -1,7 +1,7 @@
 <?php
 namespace Clicalmani\Routing;
 
-use Clicalmani\Fundation\Providers\ServiceProvider;
+use Clicalmani\Foundation\Providers\ServiceProvider;
 
 /**
  * Routing Class
@@ -305,16 +305,24 @@ class Routing
                                                              // roup they will be applied.
                 }
             };
+
+            $signatures = [];
             
             foreach ($options as $index => $path) {
                 $path->makeRequired();
                 $path->setValidator(null);
                 /** @var string */
                 $name = $path->name;
-                $setValidator("$signature/$name");
-                for ($i = 0; $i < $index; $i++) $setValidator("$signature/{$options[$i]->name}/$name");
-                for ($j = $index + 1; $j < count($options); $j++) $setValidator("$signature/$name/{$options[$i]->name}");
+                $signatures[] = "$signature/$name";
+                for ($j = $index + 1; $j < count($options); $j++) {
+                    $name = "$name/" . substr($options[$j]->name, 1);
+                }
+                $signatures[] = "$signature/$name";
             }
+
+            array_pop($signatures);
+
+            foreach ($signatures as $signature) $setValidator($signature);
 
             $subgroup->run();
             

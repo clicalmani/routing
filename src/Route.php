@@ -1,9 +1,9 @@
 <?php
 namespace Clicalmani\Routing;
 
-use Clicalmani\Fundation\Http\Requests\Request;
-use Clicalmani\Fundation\Http\Response\Response;
-use Clicalmani\Fundation\Providers\ServiceProvider;
+use Clicalmani\Foundation\Http\Requests\Request;
+use Clicalmani\Foundation\Http\Response\Response;
+use Clicalmani\Foundation\Providers\ServiceProvider;
 
 /**
  * Route Class
@@ -259,7 +259,7 @@ class Route extends \ArrayObject
         if (!$this->middlewares) return 200; // Authorized
         
         foreach ($this->middlewares as $name_or_class) {
-            if ($middleware = ServiceProvider::getProvidedMiddleware(\Clicalmani\Fundation\Routing\Route::gateway(), $name_or_class)) ;
+            if ($middleware = ServiceProvider::getProvidedMiddleware(\Clicalmani\Foundation\Routing\Route::gateway(), $name_or_class)) ;
             else $middleware = $name_or_class;
             
             if ( $middleware )

@@ -55,7 +55,7 @@ class Builder
 
             $sorted_routes[] = $route;
 
-            if (\Clicalmani\Fundation\Routing\Route::routeExists($route)) throw new \Exception(
+            if (\Clicalmani\Foundation\Routing\Route::routeExists($route)) throw new \Exception(
                 sprintf("Duplicate route %s", $route->getSignature())
             );
         }
@@ -207,7 +207,7 @@ class Builder
     {
         $route = $this->locate(
             $this->sort( 
-                \Clicalmani\Fundation\Routing\Route::getClientVerb()
+                \Clicalmani\Foundation\Routing\Route::getClientVerb()
             ) 
         );
         

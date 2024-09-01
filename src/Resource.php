@@ -1,7 +1,7 @@
 <?php
 namespace Clicalmani\Routing;
 
-use Clicalmani\Fundation\Collection\Collection;
+use Clicalmani\Foundation\Collection\Collection;
 
 /**
  * Resource Class

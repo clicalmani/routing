@@ -1,7 +1,7 @@
 <?php
 namespace Clicalmani\Routing;
 
-use Clicalmani\Fundation\Validation\InputValidator;
+use Clicalmani\Foundation\Validation\InputValidator;
 
 /**
  * PathValidator Class

@@ -100,8 +100,8 @@ class Group
      */
     public function prefix(string $prefix) : static
     {
-        if ($prefix === \Clicalmani\Fundation\Routing\Route::getApiPrefix()) 
-            $this->routes = Cache::getRoutesByVerb(\Clicalmani\Fundation\Routing\Route::getClientVerb());
+        if ($prefix === \Clicalmani\Foundation\Routing\Route::getApiPrefix()) 
+            $this->routes = Cache::getRoutesByVerb(\Clicalmani\Foundation\Routing\Route::getClientVerb());
 
         foreach ($this->routes as $route) {
             $new_path = new Path;
@@ -165,6 +165,28 @@ class Group
             }
         }
 
+        return $this;
+    }
+
+    /**
+     * Validate parameter's value against any validator.
+     * 
+     * @param string $param
+     * @param string $signature
+     * @return static
+     */
+    public function where(string $param, string $signature) : static
+    {
+        /** @var \Clicalmani\Routing\Route */
+        foreach ($this->routes as $route) {
+            /** @var \Clicalmani\Routing\Path */
+            foreach ($route as $path) {
+                if ($path->getName() === $param) {
+                    $path->setValidator(new PathValidator($param, $signature));
+                }
+            }
+        }
+        
         return $this;
     }
 
