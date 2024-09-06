@@ -94,16 +94,16 @@ class Routing
      * 
      * @param string $name_or_class
      * @param mixed $callback If omitted the middleware will be considered as an inline middleware
-     * @return mixed
+     * @return void
      */
-    public function middleware(string $name_or_class, mixed $callback = null)
+    public function middleware(string $name_or_class, mixed $callback = null) : void
     {
         if ( $middleware = $this->getMiddleware($name_or_class) ) 
-            return $this->registerMiddleware($callback ? $callback: $middleware, $name_or_class);
-
-        throw new \Exception(
-            sprintf("Unknow middleware %s specified", $name_or_class)
-        );
+            $this->registerMiddleware($callback ? $callback: $middleware, $name_or_class);
+        else
+            throw new \Exception(
+                sprintf("Unknow middleware %s specified", $name_or_class)
+            );
     }
 
     /**
@@ -114,15 +114,18 @@ class Routing
      */
     private function getMiddleware(string $name_or_class) : mixed
     {
+        /** @var string */
+        $main = $this->parseMiddleware($name_or_class)['main'];
+
         /**
          * Inline middleware
          */
-        if (class_exists($name_or_class)) $middleware = $name_or_class;
+        if (class_exists($main)) $middleware = $main;
 
         /**
          * Global middleware
          */
-        else $middleware = ServiceProvider::getProvidedMiddleware($this->gateway(), $name_or_class);
+        else $middleware = ServiceProvider::getProvidedMiddleware($this->gateway(), $main);
 
         if ( NULL === $middleware ) return null;
         
@@ -138,17 +141,46 @@ class Routing
      */
     private function registerMiddleware(mixed $middleware, string $name_or_class) : void
     {
-        Record::start($name_or_class);
+        $ret = $this->parseMiddleware($name_or_class);
+        /** @var string */
+        $main = $ret['main'];
+        /** @var string[] */
+        $subs = $ret['subs'];
+
+        Record::start($main);
 
         if (method_exists($middleware, 'boot')) $middleware->boot();
         elseif (is_callable($middleware)) $middleware();
         
         $routes = Record::get();
         
-        if ( array_key_exists($name_or_class, $routes) ) 
-            foreach ($routes[$name_or_class] as $route) $route->addMiddleware($name_or_class);
+        if ( array_key_exists($main, $routes) ) {
+            /** @var \Clicalmani\Routing\Route $route */
+            foreach ($routes[$main] as $route) {
+                $route->addMiddleware($main);
+                /** @var string $sub */
+                foreach ($subs as $sub) $route->addMiddleware($sub);
+            }
+        }
         
         Record::stop();
+    }
+
+    /**
+     * Parse middleware
+     * 
+     * @param string $name
+     * @return object
+     */
+    private function parseMiddleware(string $name)
+    {
+        $arr = preg_split('/[,]/', strtr($name, '@[]', ',,,'), -1, PREG_SPLIT_NO_EMPTY);
+        $main = array_shift($arr);
+
+        return [
+            'main' => $main,
+            'subs' => collection($arr)->map(fn(string $name) => trim($name))->toArray()
+        ];
     }
 
     /**

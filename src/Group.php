@@ -120,15 +120,20 @@ class Group
     }
 
     /**
-     * Define a middleware on the routes group
+     * Define one or more middlewares on the routes group
      * 
-     * @param mixed $name
+     * @param string|string[] $name_or_classe Middleware name or class
      * @return void
      */
-    public function middleware(mixed $name_or_class) : void
+    public function middleware(string|array $name_or_class) : void
     {
+        $name_or_class = (array) $name_or_class;
+        
+        /** @var \Clicalmani\Routing\Route $route */
         foreach ($this->routes as $route) {
-            $route->addMiddleware($name_or_class);
+            foreach ($name_or_class as $name) {
+                $route->addMiddleware($name);
+            }
         }
     }
 

@@ -204,12 +204,14 @@ class Validator
     /**
      * Define route middleware
      * 
-     * @param string $name Middleware name all class
+     * @param string|string[] $name Middleware name all class
      * @return static
      */
-    public function middleware(string $name_or_class) : static
+    public function middleware(string|array $name_or_class) : static
     {
-        $this->route->addMiddleware($name_or_class);
+        $name_or_class = (array) $name_or_class;
+
+        foreach ($name_or_class as $name) $this->route->addMiddleware($name);
 
         return $this;
     }
