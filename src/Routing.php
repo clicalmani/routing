@@ -391,15 +391,17 @@ class Routing
          * @var string
          */
         $name = array_shift($params);
-
+        
         if ($route = $this->findByName($name)) {
 
             /** @var \Clicalmani\Routing\Path */
             foreach ($route as $index => $path) {
                 if ($path->isParameter() && @$params[$index]) $path->value = $params[$index];
             }
+            
+            if ($arr = $route->getPathNameArray()) return join('/', $arr);
 
-            return join('/', $route->getPathNameArray());
+            return '/';
         }
 
         return null;
@@ -414,8 +416,10 @@ class Routing
     public function findByName(string $name) : mixed
     {
         /** @var \Clicalmani\Routing\Route */
-        foreach (Cache::getRoutesByVerb($this->getClientVerb()) as $route) {
-            if ($route->name === $name) return $route;
+        foreach (Cache::getRoutes() as $verb => $routes) {
+            foreach ($routes as $route) {
+                if ($route->name === $name OR $route->signature === trim($name, '/')) return $route;
+            }
         }
 
         return null;

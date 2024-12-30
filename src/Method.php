@@ -157,10 +157,10 @@ trait Method
      * Resource route
      * 
      * @param string $resource
-     * @param string $controller
+     * @param ?string $controller
      * @return \Clicalmani\Routing\Resource
      */
-    public function resource(string $resource, string $controller = null) : Resource
+    public function resource(string $resource, ?string $controller = null) : Resource
     {
         $routines = new Resource;
 
