@@ -100,7 +100,7 @@ class Group
      */
     public function prefix(string $prefix) : static
     {
-        if ($prefix === \Clicalmani\Foundation\Routing\Route::getApiPrefix()) 
+        if ($prefix === \Clicalmani\Foundation\Support\Facades\Config::route('api_prefix')) 
             $this->routes = Cache::getRoutesByVerb(\Clicalmani\Foundation\Routing\Route::getClientVerb());
 
         foreach ($this->routes as $route) {

@@ -1,6 +1,8 @@
 <?php
 namespace Clicalmani\Routing;
 
+use Clicalmani\Foundation\Support\Facades\Config;
+
 /**
  * Path Class
  * 
@@ -37,7 +39,7 @@ class Path
      */
     public function isParameter() : bool
     {
-        return !!preg_match('/^:/', $this->name);
+        return !!preg_match("/^" . Config::route('parameter_prefix') . "/", $this->name);
     }
 
     /**
@@ -85,7 +87,7 @@ class Path
      */
     public function isOptional() : bool
     {
-        return preg_match('/^\?:/', $this->name);
+        return preg_match("/^\?" . Config::route('parameter_prefix') . "/", $this->name);
     }
 
     /**

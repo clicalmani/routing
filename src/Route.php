@@ -4,6 +4,7 @@ namespace Clicalmani\Routing;
 use Clicalmani\Foundation\Http\Requests\Request;
 use Clicalmani\Foundation\Http\Response\Response;
 use Clicalmani\Foundation\Providers\ServiceProvider;
+use Clicalmani\Foundation\Support\Facades\Config;
 
 /**
  * Route Class
@@ -166,7 +167,7 @@ class Route extends \ArrayObject
      */
     public function seemsOptional()
     {
-        return preg_match('/\?:.*([^\/])?/', $this->signature);
+        return preg_match("/\?" . Config::route('parameter_prefix') . ".*([^\/])?/", $this->signature);
     }
 
     /**
@@ -180,7 +181,7 @@ class Route extends \ArrayObject
 
         /** @var \Clicalmani\Routing\Path */
         foreach ($this as $path)
-            if (preg_match('/^\?:/', $path->name)) $paths[] = $path;
+            if (preg_match("/^\?" . Config::route('parameter_prefix') . "/", $path->name)) $paths[] = $path;
 
         return $paths;
     }
@@ -432,6 +433,16 @@ class Route extends \ArrayObject
         $this->resources['ignore'] = $ignore;
 
         return null;
+    }
+
+    /**
+     * Check dynamic route
+     * 
+     * @return bool
+     */
+    public function isDynamic() : bool
+    {
+        return preg_match('/^\{/', trim(trim($this->signature), '/'));
     }
 
     public function __get(string $name)

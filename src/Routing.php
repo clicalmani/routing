@@ -2,6 +2,7 @@
 namespace Clicalmani\Routing;
 
 use Clicalmani\Foundation\Providers\ServiceProvider;
+use Clicalmani\Foundation\Support\Facades\Config;
 
 /**
  * Routing Class
@@ -34,16 +35,6 @@ class Routing
     }
 
     /**
-     * API prefix
-     * 
-     * @return string
-     */
-    public function getApiPrefix() : string
-    {
-        return with(new \App\Providers\RouteServiceProvider)->getApiPrefix();
-    }
-
-    /**
      * Detect api gateway
      * 
      * @return bool
@@ -52,7 +43,7 @@ class Routing
     {
         if ( inConsoleMode() && defined('CONSOLE_API_ROUTE') ) return true;
         
-        $api = $this->getApiPrefix();
+        $api = \Clicalmani\Foundation\Support\Facades\Config::route('api_prefix');
         
         return preg_match(
             "/^\/$api/", 
@@ -213,7 +204,8 @@ class Routing
      */
     private function createRoute(string $signature) : Route
     {
-        return (new Builder)->create($signature);
+        $builder = Config::route('default_builder');
+        return (new $builder)->create($signature);
     }
 
     /**
@@ -224,14 +216,8 @@ class Routing
      */
     public function routeExists(Route $route) : bool
     {
-        $count = 0;
-
-        /** @var \Clicalmani\Routing\Route */
-        foreach (Cache::getRoutesByVerb($route->verb) as $r) {
-            if ($r->signature === $route->signature) $count++;
-        }
-
-        return $count > 1;
+        $builder = Config::route('default_builder');
+        return (new $builder)->isBuilt($route);
     }
 
     /**
