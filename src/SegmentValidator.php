@@ -1,29 +1,29 @@
 <?php
 namespace Clicalmani\Routing;
 
-use Clicalmani\Foundation\Validation\InputValidator;
+use Clicalmani\Foundation\Validation\Validator;
 
 /**
- * PathValidator Class
+ * SegmentValidator Class
  * 
  * @package clicalmani/routing 
  * @author @clicalmani
  */
-class PathValidator extends InputValidator
+class SegmentValidator extends Validator
 {
     /**
      * Parameter to be validated
      * 
      * @var array
      */
-    private array $signatures = [];
+    private array $uris = [];
 
-    public function __construct(private string $name, string $signature)
+    public function __construct(private string $name, string $uri)
     {
         parent::__construct(true);
         
-        $this->signatures = [
-            $name => $signature
+        $this->uris = [
+            $name => $uri
         ];
     }
 
@@ -36,7 +36,7 @@ class PathValidator extends InputValidator
     public function test(string &$value) : bool
     {
         $input[$this->name] = $value;
-        $valid = parent::sanitize($input, $this->signatures);
+        $valid = parent::sanitize($input, $this->uris);
         
         if ( TRUE == $valid ) $value = $input[$this->name];
         

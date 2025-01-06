@@ -15,11 +15,11 @@ use Clicalmani\Foundation\Support\Facades\Config;
 class Route extends \ArrayObject
 {
     /**
-     * Route signature
+     * Route uri
      * 
      * @var string
      */
-    private string $signature = '';
+    private string $uri = '';
 
     /**
      * Route verb
@@ -84,27 +84,27 @@ class Route extends \ArrayObject
     {
         parent::offsetSet($index, $newval);
 
-        $this->signature = $this->getSignature();
+        $this->uri = $this->uri();
     }
 
-    public function getSignature()
+    public function uri()
     {
-        $signature = [];
+        $uri = [];
 
-        foreach ($this as $path) $signature[] = $path->name;
+        foreach ($this as $segment) $uri[] = $segment->name;
 
-        return join('/', $signature);
+        return join('/', $uri);
     }
 
     /**
-     * Signature setter
+     * URI setter
      * 
-     * @param string $new_signature
+     * @param string $new_uri
      * @return void
      */
-    public function setSignature(string $new_signature) : void
+    public function setUri(string $new_uri) : void
     {
-        $this->signature = $new_signature;
+        $this->uri = $new_uri;
     }
 
     /**
@@ -115,21 +115,21 @@ class Route extends \ArrayObject
      */
     public function diff(Route $route) : array
     {
-        return array_diff($this->getPathNameArray(), $route->getPathNameArray());
+        return array_diff($this->getSegmentsNames(), $route->getSegmentsNames());
     }
 
     /**
-     * Returns an array of route paths names.
+     * Returns an array of route segments' names.
      * 
      * @return string[]
      */
-    public function getPathNameArray() : array
+    public function getSegmentsNames() : array
     {
         $ret = [];
         
-        /** @var \Clicalmani\Routing\Path */
-        foreach ($this as $path) {
-            $ret[] = $path->name;
+        /** @var \Clicalmani\Routing\Segment */
+        foreach ($this as $segment) {
+            $ret[] = $segment->name;
         }
 
         return $ret;
@@ -143,19 +143,19 @@ class Route extends \ArrayObject
      */
     public function equals(Route $route) : bool
     {
-        if ($route->signature === $this->signature) return true;
+        if ($route->uri === $this->uri) return true;
         
         $ret = [];
 
-        /** @var \Clicalmani\Routing\Path */
-        foreach ($route as $path) {
-            if ($path->isParameter()) {
-                if ($path->isValid()) $ret[] = $path->value;
-                else $ret[] = $path->name;
-            } else $ret[] = $path->name;
+        /** @var \Clicalmani\Routing\Segment */
+        foreach ($route as $segment) {
+            if ($segment->isParameter()) {
+                if ($segment->isValid()) $ret[] = $segment->value;
+                else $ret[] = $segment->name;
+            } else $ret[] = $segment->name;
         }
         
-        if (join('', $ret) === join('', $this->getPathNameArray())) return true;
+        if (join('', $ret) === join('', $this->getSegmentsNames())) return true;
 
         return false;
     }
@@ -165,44 +165,44 @@ class Route extends \ArrayObject
      * 
      * @return bool
      */
-    public function seemsOptional()
+    public function seemsOptional() : bool
     {
-        return preg_match("/\?" . Config::route('parameter_prefix') . ".*([^\/])?/", $this->signature);
+        return !!preg_match("/\?" . Config::route('parameter_prefix') . ".*([^\/])?/", $this->uri);
     }
 
     /**
-     * Returns optional paths
+     * Returns optional segments
      * 
-     * @return \Clicalmani\Routing\Path[]
+     * @return \Clicalmani\Routing\Segment[]
      */
     public function getOptions() : array
     {
-        $paths = [];
+        $segments = [];
 
-        /** @var \Clicalmani\Routing\Path */
-        foreach ($this as $path)
-            if (preg_match("/^\?" . Config::route('parameter_prefix') . "/", $path->name)) $paths[] = $path;
+        /** @var \Clicalmani\Routing\Segment */
+        foreach ($this as $segment)
+            if (preg_match("/^\?" . Config::route('parameter_prefix') . "/", $segment->name)) $segments[] = $segment;
 
-        return $paths;
+        return $segments;
     }
 
     /**
-     * Returns route paths
+     * Returns route segments
      * 
-     * @return \Clicalmani\Routing\Path[]
+     * @return \Clicalmani\Routing\Segment[]
      */
-    public function getPaths() : array
+    public function getSegments() : array
     {
-        $paths = [];
+        $segments = [];
 
-        /** @var \Clicalmani\Routing\Path */
-        foreach ($this as $path) $paths[] = $path;
+        /** @var \Clicalmani\Routing\Segment */
+        foreach ($this as $segment) $segments[] = $segment;
 
-        return $paths;
+        return $segments;
     }
 
     /**
-     * Remove all optional paths
+     * Remove all optional segments
      * 
      * @return void
      */
@@ -212,29 +212,29 @@ class Route extends \ArrayObject
 
         /** 
          * @var int $index 
-         * @var \Clicalmani\Routing\Path 
+         * @var \Clicalmani\Routing\Segment 
          */
-        foreach ($this as $index => $path) 
-            if ($path->isOptional()) $options[] = $index;
+        foreach ($this as $index => $segment) 
+            if ($segment->isOptional()) $options[] = $index;
 
         foreach ($options as $index) unset($this[$index]);
 
-        $this->signature = $this->getSignature();
+        $this->uri = $this->uri();
     }
 
     /**
      * Get route parameters
      * 
-     * @return \Clicalmani\Routing\Path[]
+     * @return \Clicalmani\Routing\Segment[]
      */
     public function getParameters()
     {
-        /** @var \Clicalmani\Routing\Path[] */
+        /** @var \Clicalmani\Routing\Segment[] */
         $params = [];
 
-        /** @var \Clicalmani\Routing\Path */
-        foreach ($this as $path) {
-            if ($path->isParameter()) $params[] = $path;
+        /** @var \Clicalmani\Routing\Segment */
+        foreach ($this as $segment) {
+            if ($segment->isParameter()) $params[] = $segment;
         }
 
         return $params;
@@ -243,11 +243,22 @@ class Route extends \ArrayObject
     /**
      * Add a new middleware
      * 
-     * @param mixed $middleware
+     * @param mixed $name_or_class
+     * @return void
      */
-    public function addMiddleware(mixed $name_or_class)
+    public function addMiddleware(mixed $name_or_class) : void
     {
         if ( !in_array($name_or_class, $this->middlewares) ) $this->middlewares[] = $name_or_class;
+    }
+
+    /**
+     * Get route middlewares
+     * 
+     * @return array
+     */
+    public function getMiddlewares() : array
+    {
+        return $this->middlewares;
     }
 
     /**
@@ -288,7 +299,7 @@ class Route extends \ArrayObject
         $count = 0;
 
         /** @var \Clicalmani\Routing\Route */
-        foreach (Cache::getRoutesByVerb($this->verb) as $route) {
+        foreach (Memory::getRoutesByVerb($this->verb) as $route) {
             if ($route->name === $this->name) $count++;
         }
 
@@ -436,19 +447,30 @@ class Route extends \ArrayObject
     }
 
     /**
-     * Check dynamic route
+     * Check custom route
      * 
      * @return bool
      */
-    public function isDynamic() : bool
+    public function isCustom() : bool
     {
-        return preg_match('/^\{/', trim(trim($this->signature), '/'));
+        return preg_match('/^(\{.*\})$/', trim(trim($this->uri), '/'));
+    }
+
+    /**
+     * Check if route is named
+     * 
+     * @param string $name
+     * @return bool
+     */
+    public function named(string $name) : bool
+    {
+        return $this->name === $name;
     }
 
     public function __get(string $name)
     {
         switch ($name) {
-            case 'signature': return $this->signature;
+            case 'uri': return $this->uri;
             case 'action': return $this->action;
             case 'verb': return $this->verb;
             case 'name': return $this->name;
@@ -459,11 +481,46 @@ class Route extends \ArrayObject
     public function __set(string $name, mixed $value)
     {
         switch ($name) {
-            case 'signature': $this->signature = $value; break;
-            case 'action': $this->action = $value; break;
+            case 'uri': $this->uri = $value; break;
             case 'verb': $this->verb = $value; break;
             case 'name': $this->name = $value; break;
             case 'redirect': $this->redirect = $value; break;
+            case 'action': 
+
+                /**
+                 * Method action
+                 */
+                if ( is_array($value) AND count($value) === 2 ) {
+                    $this->action = $value;
+                } 
+                
+                /**
+                 * Controller method action
+                 */
+                elseif ( is_string($value) && $value ) {
+                    
+                    if ($group = Memory::currentGroup()) {
+                        if ($group->controller) $this->action = [$group->controller, $value];
+                        else $this->action = [$value, '__invoke'];
+                    }
+                } 
+    
+                /**
+                 * Anonymous action
+                 */
+                elseif ( is_callable($value) ) $this->action = $value;
+                
+                /**
+                 * Controller class action
+                 */
+                elseif (!$value) {
+                    $this->action = '__invoke';
+                }
+                
+                if ($group = Memory::currentGroup() AND \Clicalmani\Foundation\Routing\Route::getClientVerb() === $this->verb) {
+                    $group->addRoute($this);
+                }
+            break;
         }
     }
 
@@ -471,14 +528,14 @@ class Route extends \ArrayObject
     {
         $route = new self;
 
-        /** @var \Clicalmani\Routing\Path */
-        foreach ($this as $path) $route[] = $path;
+        /** @var \Clicalmani\Routing\Segment */
+        foreach ($this as $segment) $route[] = $segment;
 
         return $route;
     }
 
     public function __toString()
     {
-        return $this->getSignature();
+        return $this->uri();
     }
 }

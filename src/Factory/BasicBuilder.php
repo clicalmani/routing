@@ -2,28 +2,28 @@
 namespace Clicalmani\Routing\Factory;
 
 use Clicalmani\Routing\Builder;
-use Clicalmani\Routing\Cache;
+use Clicalmani\Routing\Memory;
 use Clicalmani\Routing\Parameter;
-use Clicalmani\Routing\Path;
 use Clicalmani\Routing\Route;
+use Clicalmani\Routing\Segment;
 
 class BasicBuilder extends Builder implements \Clicalmani\Routing\BuilderInterface
 {
     /**
      * Get route sequences
      * 
-     * @param string $signature Route signature
+     * @param string $uri Route uri
      * @return \Clicalmani\Routing\Route 
      */
-    public function create(string $signature) : Route
+    public function create(string $uri) : Route
     {
         $route = new Route;
-        $route->setSignature($signature);
+        $route->setUri($uri);
         
-        foreach (preg_split('/\//', $signature, -1, PREG_SPLIT_NO_EMPTY) as $part) {
-            $path = new Path;
-            $path->name = $part;
-            $route[] = $path;
+        foreach (preg_split('/\//', $uri, -1, PREG_SPLIT_NO_EMPTY) as $part) {
+            $segment = new Segment;
+            $segment->name = $part;
+            $route[] = $segment;
         }
         
         return $route;
@@ -43,11 +43,12 @@ class BasicBuilder extends Builder implements \Clicalmani\Routing\BuilderInterfa
         $candidates = [];
         
         // Gauge
-        $len = count( $this->create( current_route() ) );
+        $len = count( $this->create( client_uri() ) );
         
-        foreach (Cache::getRoutesByVerb($verb) as $route) {
-            
-            if ($len !== count($route)) continue;
+        /** @var \Clicalmani\Routing\Route $route */
+        foreach (Memory::getRoutesByVerb($verb) as $route) {
+
+            if ($len !== count($route) OR $route->isCustom()) continue;
 
             if ($this->isBuilt($route)) 
                 throw new \Clicalmani\Routing\Exceptions\DuplicateRouteException($route);
@@ -95,20 +96,20 @@ class BasicBuilder extends Builder implements \Clicalmani\Routing\BuilderInterfa
             
             foreach ($parameters as $parameter) {
 
-                /** @var \Clicalmani\Routing\Path */
-                $path = $route[$parameter->position];
+                /** @var \Clicalmani\Routing\Segment */
+                $segment = $route[$parameter->position];
 
-                $path->value = $parameter->value;
-                $parameter->name = $path->name;
+                $segment->value = $parameter->value;
+                $parameter->name = $segment->name;
                 
-                if (FALSE == $path->isValid()) continue 2;
+                if (FALSE == $segment->isValid()) continue 2;
             }
             
             if ($client->equals($route)) {
                 foreach ($parameters as $parameter) {
-                    /** @var \Clicalmani\Routing\Path */
-                    $path = $route[$parameter->position];
-                    $path->register();
+                    /** @var \Clicalmani\Routing\Segment */
+                    $segment = $route[$parameter->position];
+                    $segment->register();
                 }
                 
                 return $route;
@@ -140,13 +141,13 @@ class BasicBuilder extends Builder implements \Clicalmani\Routing\BuilderInterfa
          */
         $parameters = [];
         
-        foreach ($client as $index => $path) {
+        foreach ($client as $index => $segment) {
 
             if (FALSE == $route[$index]->isParameter()) continue;
             
             if ( in_array(config('route.parameter_prefix') . $route[$index]->getName(), $route->diff($client)) ) {
                 $param = new Parameter;
-                $param->value = $path->name;
+                $param->value = $segment->name;
                 $param->position = $index;
                 $parameters[] = $param;
             }
@@ -159,9 +160,9 @@ class BasicBuilder extends Builder implements \Clicalmani\Routing\BuilderInterfa
         
         foreach ($parameters as $param) {
             if ($route[$param->position]->isParameter()) {
-                /** @var \Clicalmani\Routing\Path */
-                $path = $route[$param->position];
-                $path->value = $param->value;
+                /** @var \Clicalmani\Routing\Segment */
+                $segment = $route[$param->position];
+                $segment->value = $param->value;
             }
         }
         
@@ -193,11 +194,11 @@ class BasicBuilder extends Builder implements \Clicalmani\Routing\BuilderInterfa
         $arr = [];
         $client = $this->getClientRoute();
 
-        foreach ($candidates as $match) $arr[] = $match->getPathNameArray();
+        foreach ($candidates as $match) $arr[] = $match->getSegmentsNames();
 
         $ret = [];
         
-        foreach (array_diff($client->getPathNameArray(), ...$arr) as $key => $value) {
+        foreach (array_diff($client->getSegmentsNames(), ...$arr) as $key => $value) {
             $param = new Parameter;
             $param->value = $value;
             $param->position = $key;

@@ -2,12 +2,12 @@
 namespace Clicalmani\Routing;
 
 /**
- * Cache Class
+ * Memory Class
  * 
  * @package clicalmani/routing 
  * @author @clicalmani
  */
-class Cache
+class Memory
 {
     /**
      * Routes
@@ -31,7 +31,7 @@ class Cache
     private static $guards = [];
 
     /**
-     * Record cache
+     * Record in memory
      * 
      * @var array
      */
@@ -52,11 +52,11 @@ class Cache
     private static string $recorder = '';
 
     /**
-     * Current route signature
+     * Current route uri
      * 
      * @var \Clicalmani\Routing\Route|null
      */
-    private static Route|null $current_route = null;
+    private static Route|null $client_uri = null;
 
     /**
      * Current group
@@ -73,7 +73,7 @@ class Cache
     private static array $hooks = [];
 
     /**
-     * Returns registered routes signatures for the specified verb.
+     * Returns registered routes uris for the specified verb.
      * 
      * @param string $verb
      * @return \Clicalmani\Routing\Route[]
@@ -127,6 +127,18 @@ class Cache
     }
 
     /**
+     * Register a global validation constraint.
+     * 
+     * @param string $param Parameter name
+     * @param string $constraint A validation constraint.
+     * @return void
+     */
+    public static function registerConstraint(string $param, string $constraint) : void
+    {
+        static::$patterns[$param] = $constraint;
+    }
+
+    /**
      * Get global patterns
      * 
      * @return array
@@ -168,15 +180,15 @@ class Cache
     }
 
     /**
-     * Gets or sets current route signature.
+     * Gets or sets current route uri.
      * 
-     * @param ?string $signature
+     * @param ?string $uri
      * @return mixed
      */
     public static function currentRoute(?Route $route = null) : mixed
     {
-        if ($route) return static::$current_route = $route;
-        return static::$current_route;
+        if ($route) return static::$client_uri = $route;
+        return static::$client_uri;
     }
 
     /**

@@ -19,11 +19,11 @@ class Validator
         /**
          * Validate global patterns
          */
-        foreach (Cache::getGlobalPatterns() as $param => $pattern) {
-            /** @var \Clicalmani\Routing\Path */
-            foreach ($this->route as $path) {
-                if ($path->getName() === $param) {
-                    $path->setValidator(new PathValidator($param, 'regexp|pattern:' . $pattern));
+        foreach (Memory::getGlobalPatterns() as $param => $pattern) {
+            /** @var \Clicalmani\Routing\Segment */
+            foreach ($this->route as $segment) {
+                if ($segment->getName() === $param) {
+                    $segment->setValidator(new SegmentValidator($param, 'regexp|pattern:' . $pattern));
                 }
             }
         }
@@ -50,13 +50,13 @@ class Validator
     }
 
     /**
-     * Check for duplicate routes and define route signature
+     * Check for duplicate routes and define route uri
      * 
      * @return void
      */
     public function bind() : void
     {
-        Cache::addRoute($this->route);
+        Memory::addRoute($this->route);
     }
 
     /**
@@ -68,9 +68,9 @@ class Validator
      */
     private function revalidateParam(string $param, string $pattern) : void
     {
-        /** @var \Clicalmani\Routing\Path */
-        foreach ($this->route as $path) {
-            if ($path->getName() === $param) $path->setValidator(new PathValidator($param, $pattern));
+        /** @var \Clicalmani\Routing\Segment */
+        foreach ($this->route as $segment) {
+            if ($segment->getName() === $param) $segment->setValidator(new SegmentValidator($param, $pattern));
         }
     }
 
@@ -154,14 +154,14 @@ class Validator
      * Validate parameter's value against any validator.
      * 
      * @param string|array $params
-     * @param string $signature
+     * @param string $uri
      * @return static
      */
-    public function where(string|array $params, string $signature) : static
+    public function where(string|array $params, string $uri) : static
     {
         $params = (array)$params;
 
-        foreach ($params as $param) $this->revalidateParam($param, $signature);
+        foreach ($params as $param) $this->revalidateParam($param, $uri);
         
         return $this;
     }
@@ -195,7 +195,7 @@ class Validator
     {
         $uid = uniqid('gard-');
         
-        Cache::addGuard($uid, $param, $callback);
+        Memory::addGuard($uid, $param, $callback);
         $this->revalidateParam($param, 'nguard|uid:' . $uid);
 
         return $this;

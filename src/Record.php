@@ -17,7 +17,7 @@ class Record
      */
     public static function start(string $name) : void
     {
-        Cache::startRecording($name);
+        Memory::startRecording($name);
     }
 
     /**
@@ -27,7 +27,7 @@ class Record
      */
     public static function stop() : void
     {
-        Cache::stopRecording();
+        Memory::stopRecording();
     }
 
     /**
@@ -38,7 +38,7 @@ class Record
      */
     public static function add(Route $route) : void
     {
-        Cache::record($route);
+        Memory::record($route);
     }
 
     /**
@@ -48,16 +48,16 @@ class Record
      */
     public static function get() : array
     {
-        return Cache::record();
+        return Memory::record();
     }
 
     /**
-     * Clear cache
+     * Clear memory record
      * 
      * @return void
      */
     public static function clear() : void
     {
-        Cache::clearRecord();
+        Memory::clearRecord();
     }
 }

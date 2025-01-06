@@ -4,33 +4,33 @@ namespace Clicalmani\Routing;
 use Clicalmani\Foundation\Support\Facades\Config;
 
 /**
- * Path Class
+ * Segment Class
  * 
  * @package clicalmani/routing 
  * @author @clicalmani
  */
-class Path 
+class Segment 
 {
     /**
-     * Path name
+     * Segment name
      * 
      * @var string
      */
     private string $name;
 
     /**
-     * Path value
+     * Segment value
      * 
      * @var string|null
      */
     private string|null $value = null;
 
     /**
-     * Path value
+     * Segment value
      * 
-     * @var \Clicalmani\Routing\PathValidator|null
+     * @var \Clicalmani\Routing\SegmentValidator|null
      */
-    private PathValidator|null $validator = null;
+    private SegmentValidator|null $validator = null;
 
     /**
      * Is parameter
@@ -43,7 +43,7 @@ class Path
     }
 
     /**
-     * Check if path has a validator.
+     * Check if segment has a validator.
      * 
      * @return bool
      */
@@ -53,7 +53,7 @@ class Path
     }
 
     /**
-     * Get path name
+     * Get segment name
      * 
      * @return string|false
      */
@@ -81,7 +81,7 @@ class Path
     }
 
     /**
-     * Check optional path
+     * Check optional segment
      * 
      * @return bool
      */
@@ -91,7 +91,7 @@ class Path
     }
 
     /**
-     * Make an optional path required.
+     * Make an optional segment required.
      * 
      * @return void
      */
@@ -101,7 +101,7 @@ class Path
     }
 
     /**
-     * Make the path available in global variables such as $_GET, $_POST
+     * Make the segment available in global variables such as $_GET, $_POST
      * $_REQUEST as a PHP parameter.
      * 
      * @return void
@@ -117,25 +117,25 @@ class Path
     }
 
     /**
-     * Set path validator
+     * Set segment validator
      * 
-     * @param \Clicalmani\Routing\PathValidator|null $validator
+     * @param \Clicalmani\Routing\SegmentValidator|null $validator
      * @return void
      */
-    public function setValidator(PathValidator|null $validator) : void
+    public function setValidator(SegmentValidator|null $validator) : void
     {
         $this->validator = $validator;
     }
 
     /**
-     * Compare the given path to the current one.
+     * Compare the given segment to the current one.
      * 
-     * @param \Clicalmani\Routing\Path $path
+     * @param \Clicalmani\Routing\Segment $segment
      * @return bool
      */
-    public function equals(Path $path) : bool
+    public function equals(Segment $segment) : bool
     {
-        return $path->getName() === $this->getName();
+        return $segment->getName() === $this->getName();
     }
 
     public function __get(string $name)

@@ -24,6 +24,13 @@ class Group
     private string $controller = '';
 
     /**
+     * Group middleware
+     * 
+     * @var string
+     */
+    private string $middleware = '';
+
+    /**
      * Group controller
      * 
      * @var \Clicalmani\Routing\Route[]
@@ -37,7 +44,7 @@ class Group
      */
     public function __construct(private ?\Closure $callback = null) 
     {
-        Cache::currentGroup($this);
+        Memory::currentGroup($this);
         if (NULL !== $this->callback) $this->group();
     }
 
@@ -89,7 +96,13 @@ class Group
     public function run() : void
     {
         if ($this->callback) call($this->callback);
-        Cache::currentGroup(null);
+        Memory::currentGroup(null);
+
+        if ($this->hasMiddleware()) {
+            foreach ($this->routes as $route) {
+                $route->addMiddleware($this->middleware);
+            }
+        }
     }
 
     /**
@@ -101,16 +114,16 @@ class Group
     public function prefix(string $prefix) : static
     {
         if ($prefix === \Clicalmani\Foundation\Support\Facades\Config::route('api_prefix')) 
-            $this->routes = Cache::getRoutesByVerb(\Clicalmani\Foundation\Routing\Route::getClientVerb());
+            $this->routes = Memory::getRoutesByVerb(\Clicalmani\Foundation\Routing\Route::getClientVerb());
 
         foreach ($this->routes as $route) {
-            $new_path = new Path;
-            $new_path->name = $prefix;
-            $paths = $route->getPaths();
-            array_unshift($paths, $new_path);
+            $new_segment = new Segment;
+            $new_segment->name = $prefix;
+            $segments = $route->getSegments();
+            array_unshift($segments, $new_segment);
             
-            foreach ($paths as $index => $path) {
-                $route[$index] = $path;
+            foreach ($segments as $index => $segment) {
+                $route[$index] = $segment;
             }
 
             
@@ -161,10 +174,10 @@ class Group
     {
         foreach ($this->routes as $route) {
             foreach ($params as $index => $param) {
-                /** @var \Clicalmani\Routing\Path */
-                foreach ($route as $path) {
-                    if ($path->getName() === $param) {
-                        $path->setValidator(new PathValidator($param, 'regexp|pattern:' . $patterns[$index]));
+                /** @var \Clicalmani\Routing\Segment */
+                foreach ($route as $segment) {
+                    if ($segment->getName() === $param) {
+                        $segment->setValidator(new SegmentValidator($param, 'regexp|pattern:' . $patterns[$index]));
                     }
                 }
             }
@@ -177,17 +190,17 @@ class Group
      * Validate parameter's value against any validator.
      * 
      * @param string $param
-     * @param string $signature
+     * @param string $uri
      * @return static
      */
-    public function where(string $param, string $signature) : static
+    public function where(string $param, string $uri) : static
     {
         /** @var \Clicalmani\Routing\Route */
         foreach ($this->routes as $route) {
-            /** @var \Clicalmani\Routing\Path */
-            foreach ($route as $path) {
-                if ($path->getName() === $param) {
-                    $path->setValidator(new PathValidator($param, $signature));
+            /** @var \Clicalmani\Routing\Segment */
+            foreach ($route as $segment) {
+                if ($segment->getName() === $param) {
+                    $segment->setValidator(new SegmentValidator($param, $uri));
                 }
             }
         }
@@ -207,6 +220,49 @@ class Group
     }
 
     /**
+     * Check if group has middleware
+     * 
+     * @return bool
+     */
+    public function hasMiddleware() : bool
+    {
+        return !empty($this->middleware);
+    }
+
+    /**
+     * Get group middleware
+     * 
+     * @return string
+     */
+    public function getMiddleware() : string
+    {
+        return $this->middleware;
+    }
+
+    /**
+     * Set group middleware
+     * 
+     * @param string $middleware
+     * @return void
+     */
+    public function setMiddleware(string $middleware) : void
+    {
+        $this->middleware = $middleware;
+    }
+
+    /**
+     * Share resources with a sub-group
+     * 
+     * @param Group $sub
+     * @return void
+     */
+    public function shareResourcesWith(Group $sub) : void
+    {
+        if ($this->controller) $sub->controller = $this->controller;
+        if ($this->middleware) $sub->middleware = $this->middleware;
+    }
+
+    /**
      * (non-PHPDoc)
      * @overriden
      * 
@@ -217,6 +273,7 @@ class Group
     {
         if ($name === 'controller') return $this->controller;
         if ($name === 'routes') return $this->routes;
+        if ($name === 'middleware') return $this->middleware;
     }
 
     /**
@@ -231,5 +288,6 @@ class Group
     {
         if ($name === 'controller') $this->controller = $value;
         if ($name === 'routes') $this->routes = $value;
+        if ($name === 'middleware') $this->middleware = $value;
     }
 }

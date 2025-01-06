@@ -14,7 +14,7 @@ abstract class Builder
     /**
      * Create route
      * 
-     * @param string $signature Route signature
+     * @param string $uri Route uri
      * @return \Clicalmani\Routing\Route 
      */
     abstract public function create(string $uri) : Route;
@@ -30,8 +30,8 @@ abstract class Builder
         $count = 0;
 
         /** @var \Clicalmani\Routing\Route */
-        foreach (Cache::getRoutesByVerb($route->verb) as $r) {
-            if ($r->signature === $route->signature) $count++;
+        foreach (Memory::getRoutesByVerb($route->verb) as $r) {
+            if ($r->uri === $route->uri) $count++;
         }
 
         return $count > 1;
@@ -49,13 +49,13 @@ abstract class Builder
          * 
          * @var \Clicalmani\Routing\Route
          */
-        return $this->create( current_route() );
+        return $this->create( client_uri() );
     }
 
     /**
      * Build the requested route.
      * 
-     * @param string $signature Route signature
+     * @param string $uri Route uri
      * @return \Clicalmani\Routing\Parameter 
      */
     public static function build() : Route|null
@@ -78,7 +78,7 @@ abstract class Builder
 
         // Fire TPS
         \App\Providers\RouteServiceProvider::fireTPS($route);
-
+        
         return $route;
     }
 }

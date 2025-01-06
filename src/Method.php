@@ -10,29 +10,29 @@ namespace Clicalmani\Routing;
 trait Method
 {
     /**
-     * Returns registered routes signatures.
+     * Returns registered routes uris.
      * 
      * @return string[]
      */
     public function all() : array
     {
-        $signatures = [];
+        $uris = [];
         
-        foreach (Cache::getRoutes() as $entry) {
+        foreach (Memory::getRoutes() as $entry) {
             foreach ($entry as $route) {
-                $signatures[] = $route->signature;
+                $uris[] = $route->uri;
             }
         }
 
-        return $signatures;
+        return $uris;
     }
 
     /**
-     * Returns the current route
+     * Returns the client uri.
      * 
      * @return string
      */
-    public function current() : string
+    public function uri() : string
     {
         // Do not route in console mode
         if ( inConsoleMode() ) return '@console';
@@ -42,6 +42,16 @@ trait Method
         );
 
         return isset($url['path']) ? $url['path']: '/';
+    }
+
+    /**
+     * Return the current route.
+     * 
+     * @return \Clicalmani\Routing\Route|null
+     */
+    public function current(): Route|null
+    {
+        return Memory::currentRoute();
     }
 
     /**
@@ -117,35 +127,21 @@ trait Method
     }
 
     /**
-     * Any method
-     * 
-     * @param string $route
-     * @param mixed $action
-     * @return void
-     */
-    public function any(string $route, mixed $action) : void
-    {
-        foreach ($this->getSignatures() as $method => $arr) {
-            $this->setRouteSignature($method, $route, $action);
-        }
-    }
-
-    /**
      * Match multiple methods
      * 
      * @param array $matches
-     * @param string $signature
+     * @param string $uri
      * @param mixed $action
      * @return \Clicalmani\Routing\Resource
      */
-    public function match(array $matches, string $signature, mixed $action) : Resource
+    public function match(array $matches, string $uri, mixed $action) : Resource
     {
         $resource = new Resource;
 
         foreach ($matches as $verb) {
             $verb = strtolower($verb);
-            if ( array_key_exists($verb, Cache::getRoutes()) ) {
-                $validator = $this->register($verb, $signature, $action);
+            if ( array_key_exists($verb, Memory::getRoutes()) ) {
+                $validator = $this->register($verb, $uri, $action);
                 $resource[] = $validator;
             }
         }

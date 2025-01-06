@@ -21,7 +21,7 @@ class RegExBuilder extends \Clicalmani\Routing\Builder implements \Clicalmani\Ro
     public function create(string $uri) : \Clicalmani\Routing\Route
     {
         $route = new \Clicalmani\Routing\Route;
-        $route->setSignature($uri);
+        $route->setUri($uri);
         return $route;
     }
     
@@ -39,8 +39,8 @@ class RegExBuilder extends \Clicalmani\Routing\Builder implements \Clicalmani\Ro
         $candidates = [];
         $this->client = $this->getClientRoute();
 
-        foreach (\Clicalmani\Routing\Cache::getRoutesByVerb($verb) as $route) {
-            if ($route->signature && !preg_match("/{$this->sanitizeUri($route->signature)}/", trim($this->client->signature, ' /'))) continue;
+        foreach (\Clicalmani\Routing\Memory::getRoutesByVerb($verb) as $route) {
+            if ($route->uri && !preg_match("/{$this->sanitizeUri($route->uri)}/", trim($this->client->uri, ' /'))) continue;
 
             if ($this->isBuilt($route)) 
                 throw new \Clicalmani\Routing\Exceptions\DuplicateRouteException($route);

@@ -19,11 +19,11 @@ class Guard
     private \Closure $callback;
 
     /**
-     * Guard path
+     * Guard segment
      * 
-     * @var \Clicalmani\Routes\Path
+     * @var \Clicalmani\Routes\Segment
      */
-    private Path $path;
+    private Segment $segment;
 
     public function __construct(private string $uid)
     {
@@ -33,12 +33,12 @@ class Guard
     public function __set(string $name, mixed $value)
     {
         switch ($name) {
-            case 'path': $this->path = $value;
+            case 'segment': $this->segment = $value;
         }
     }
 
     public function __invoke()
     {
-        return call($this->callback, $this->path->value);
+        return call($this->callback, $this->segment->value);
     }
 }
