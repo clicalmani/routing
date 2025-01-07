@@ -151,6 +151,24 @@ class Group
     }
 
     /**
+     * Remove one or more middlewares from the routes group
+     * 
+     * @param string|string[] $name_or_class Middleware name or class
+     * @return void
+     */
+    public function withoutMiddleware(string|array $name_or_class) : void
+    {
+        $name_or_class = (array) $name_or_class;
+        
+        /** @var \Clicalmani\Routing\Route $route */
+        foreach ($this->routes as $route) {
+            foreach ($name_or_class as $name) {
+                $route->excludeMiddleware($name);
+            }
+        }
+    }
+
+    /**
      * Set parameter pattern. Useful for optional parameters
      * 
      * @param string $param

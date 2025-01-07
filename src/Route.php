@@ -51,6 +51,13 @@ class Route extends \ArrayObject
     private array $middlewares = [];
 
     /**
+     * Excluded middlewares
+     * 
+     * @var array
+     */
+    private array $excluded_middlewares = [];
+
+    /**
      * Route resources
      * 
      * @var array
@@ -252,13 +259,24 @@ class Route extends \ArrayObject
     }
 
     /**
+     * Remove a middleware
+     * 
+     * @param mixed $name_or_class
+     * @return void
+     */
+    public function excludeMiddleware(mixed $name_or_class) : void
+    {
+        if ( !in_array($name_or_class, $this->excluded_middlewares) ) $this->excluded_middlewares[] = $name_or_class;
+    }
+
+    /**
      * Get route middlewares
      * 
      * @return array
      */
     public function getMiddlewares() : array
     {
-        return $this->middlewares;
+        return array_diff($this->middlewares, $this->excluded_middlewares);
     }
 
     /**
