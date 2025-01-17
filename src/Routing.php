@@ -52,11 +52,7 @@ class Routing
     }
 
     /**
-     * Group routes
-     * 
-     * @param mixed $parameters It can be one or two parameters. if one parameter is passed it must a callable value,
-     * otherwise the first argument must be an array and the second a callable value
-     * @return \Clicalmani\Routing\Group|null
+     * Group routes under a common prefix or middleware
      */
     public function group(mixed ...$parameters) : \Clicalmani\Routing\Group|null
     {
@@ -71,8 +67,11 @@ class Routing
         }
 
         // Prefix routes
-        if ( isset($args['prefix']) AND $prefix = $args['prefix']) 
-            return with( new Group($callback) )->prefix($prefix);
+        if ( isset($args['prefix']) AND $prefix = $args['prefix']) {
+            $group = with( new Group($callback) )->prefix($prefix);
+            if ( isset($args['where']) ) $group->where(array_keys($args['where'])[0], array_values($args)[0]);
+            return $group;
+        }
         
         // Middleware
         if ( isset($args['middleware']) AND $name = $args['middleware']) 
@@ -345,6 +344,57 @@ class Routing
                                                      // Remember if validations are also present on the main
                                                      // roup they will be applied.
         }
+    }
+
+    /**
+     * Create a resource route
+     * 
+     * @param string $resource
+     * @param array $routes
+     * @param string $controller
+     * @return \Clicalmani\Routing\Resource
+     */
+    private function __createResource(string $resource, string $controller, array $routes) : Resource
+    {
+        $routines = new Resource;
+
+        ( new Group(function() use($resource, $routes, $routines, $controller) {
+            foreach ($routes as $method => $segs) {
+                foreach ($segs as $action => $uri) {
+                    $routines[] = $this->register($method, $this->__parseResourceUri($resource, $uri), [$controller, $action]);
+                }
+            }
+        }) )->prefix(explode('.', $resource)[0]);
+
+        return $routines;
+    }
+
+    /**
+     * Create a resource URI
+     * 
+     * @param string $resource
+     * @param string $uri
+     * @return string
+     */
+    private function __parseResourceUri(string $resource, string $uri) : string
+    {
+        $arr = explode('.', $resource);
+        $nested = @$arr[1] ?? '';
+
+        $route_parameter_prefix = \Clicalmani\Foundation\Support\Facades\Config::route('parameter_prefix');
+
+        $bindings = [
+            '{id}' => $route_parameter_prefix.'id',
+            '{?id}' => !empty($nested) ? $route_parameter_prefix.'id': '',
+            '{nested}' => $nested,
+            '{nid}' => !empty($nested) ? $route_parameter_prefix.'nid': ''
+        ];
+
+        foreach ($bindings as $key => $value) {
+            $uri = str_replace($key, $value, $uri);
+        }
+        
+        return sprintf('/%s', trim(preg_replace('/\/\//', '/', $uri), '/'));
     }
 
     /**

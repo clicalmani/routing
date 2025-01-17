@@ -208,17 +208,17 @@ class Group
      * Validate parameter's value against any validator.
      * 
      * @param string $param
-     * @param string $uri
+     * @param string $rule
      * @return static
      */
-    public function where(string $param, string $uri) : static
+    public function where(string $param, string $rule) : static
     {
         /** @var \Clicalmani\Routing\Route */
         foreach ($this->routes as $route) {
             /** @var \Clicalmani\Routing\Segment */
             foreach ($route as $segment) {
                 if ($segment->getName() === $param) {
-                    $segment->setValidator(new SegmentValidator($param, $uri));
+                    $segment->setValidator(new SegmentValidator($param, $rule));
                 }
             }
         }

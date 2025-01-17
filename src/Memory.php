@@ -115,6 +115,26 @@ class Memory
     }
 
     /**
+     * Remove a route by verb
+     * 
+     * @param \Clicalmani\Routing\Route $route
+     * @param string $verb
+     * @return bool
+     */
+    public static function removeRoute(Route $route, string $verb) : bool
+    {
+        /** @var \Clicalmani\Routing\Route $r */
+        foreach (static::$routes[$verb] as $i => $r) {
+            if ($route->equals($r)) {
+                unset(static::$routes[$verb][$i]);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Register a global pattern
      * 
      * @param string $param Parameter name

@@ -152,102 +152,69 @@ trait Method
     /**
      * Resource route
      * 
-     * @param string $resource
-     * @param ?string $controller
+     * @param string $resource Resource name
+     * @param string $controller Resource controller
      * @return \Clicalmani\Routing\Resource
      */
-    public function resource(string $resource, ?string $controller = null) : Resource
+    public function resource(string $resource, string $controller) : Resource
     {
-        $routines = new Resource;
-
-        $routes = [
-            'get'    => ['index' => '', 'create' => 'create', 'show' => ':id', 'edit' => ':id/edit'],
-            'post'   => ['store' => ''],
-            'put'    => ['update' => ':id'],
-            'patch'  => ['update' => ':id'],
-            'delete' => ['destroy' => ':id']
-        ];
-
-        foreach ($routes as $verb => $sigs) {
-            foreach ($sigs as $action => $sig) {
-                $routines[] = $this->register($verb, $resource . '/' . $sig, [$controller, $action]);
-            }
-        }
-
-        return $routines;
-    }
-
-    /**
-     * Multiple resources
-     * 
-     * @param mixed $resource
-     * @return void
-     */
-    public function resources(mixed $resources) : void
-    {
-        $routines = new Resource;
-
-        foreach ($resources as $resource => $controller) {
-            $this->resource($resource, $controller);
-        }
+        return $this->__createResource($resource, $controller, [
+            'get'    => ['index' => '{id}/{nested}', 'create' => '{id}/{nested}/create', 'show' => '{id}/{nested}/{nid}', 'edit' => '{id}/{nested}/{nid}/edit'],
+            'post'   => ['store' => '{id}/{nested}'],
+            'put'    => ['update' => '{id}/{nested}/{nid}'],
+            'patch'  => ['update' => '{id}/{nested}/{nid}'],
+            'delete' => ['destroy' => '{id}/{nested}/{nid}']
+        ]);
     }
 
     /**
      * API resource
      * 
-     * @param mixed $resource
-     * @param ?string $controller Controller class
-     * @param ?array $actions Customize actions
+     * @param string $resource
+     * @param string $controller Controller class
      * @return \Clicalmani\Routing\Resource
      */
-    public function apiResource(mixed $resource, ?string $controller = null, ?array $actions = []) : Resource
+    public function apiResource(string $resource, string $controller) : Resource
     {
-        $routines = new Resource;
-
-        $routes = [
-            'get'    => ['index' => '', 'create' => ':id'],
-            'post'   => ['store' => ''],
-            'put'    => ['update' => ':id'],
-            'patch'  => ['update' => ':id'],
-            'delete' => ['destroy' => ':id']
-        ];
-
-        ( new Group(function() use($routes, $routines, $controller, $actions) {
-            foreach ($routes as $method => $sigs) {
-                foreach ($sigs as $action => $sig) {
-                    
-                    if ( !empty($actions) && !in_array($action, $actions) ) continue;
-                    /** @var \Clicalmani\Routing\Validator|\Clicalmani\Routing\Group */
-                    $return = $this->register($method, $sig, [$controller, $action]);
-                    
-                    if (get_class($return) === \Clicalmani\Routing\Validator::class) {
-                        $routines[] = $return->route;
-                    } else {
-                        /** @var \Clicalmani\Routing\Route */
-                        foreach ($return->routes as $route) {
-                            $routines[] = $route;
-                        }
-                    }
-                }
-            }
-        }) )->prefix($resource);
-        
-        return $routines;
+        return $this->__createResource($resource, $controller, [
+            'get'    => ['index' => '{?id}/{nested}', 'show' => '{id}/{nested}/{nid}'],
+            'post'   => ['store' => '{?id}/{nested}'],
+            'put'    => ['update' => '{id}/{nested}/{nid}'],
+            'patch'  => ['update' => '{id}/{nested}/{nid}'],
+            'delete' => ['destroy' => '{id}/{nested}/{nid}']
+        ]);
     }
 
     /**
-     * Multiple resources
+     * Single resource
      * 
-     * @param mixed $resources
-     * @return void
+     * @param string $resource
+     * @param string $controller
+     * @return \Clicalmani\Routing\Resource
      */
-    public function apiResources(mixed $resources) : void
+    public function singleton(string $resource, string $controller) : Resource
     {
-        $routines = new Resource;
+        return $this->__createResource($resource, $controller, [
+            'get'    => ['show' => '{id}/{nested}/{nid}', 'edit' => '{id}/{nested}/{nid}/edit'],
+            'put'    => ['update' => '{id}/{nested}/{nid}'],
+            'patch'  => ['update' => '{id}/{nested}/{nid}']
+        ]);
+    }
 
-        foreach ($resources as $resource => $controller) {
-            $this->apiResource($resource, $controller);
-        }
+    /**
+     * API single resource
+     * 
+     * @param string $resource
+     * @param string $controller
+     * @return \Clicalmani\Routing\Resource
+     */
+    public function apiSingleton(string $resource, string $controller) : Resource
+    {
+        return $this->__createResource($resource, $controller, [
+            'get'    => ['show' => '{id}/{nested}/{nid}'],
+            'put'    => ['update' => '{id}/{nested}/{nid}'],
+            'patch'  => ['update' => '{id}/{nested}/{nid}'],
+        ]);
     }
 
     /**

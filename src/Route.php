@@ -115,6 +115,38 @@ class Route extends \ArrayObject
     }
 
     /**
+     * Reset route URI
+     * 
+     * @return void
+     */
+    public function resetUri() : void
+    {
+        $this->uri = $this->uri();
+    }
+
+    /**
+     * Remove route segment at the specified index.
+     * 
+     * @param int $index
+     * @param ?bool $preserve_keys Preserve array keys, Default true
+     * @return void
+     */
+    public function removeSegmentAt(int $index, ?bool $preserve_keys = true) : void
+    {
+        unset($this[$index]);
+        $this->resetUri();
+
+        if (FALSE === $preserve_keys) {
+            /** @var \Clicalmani\Routing\Segment[] */
+            $segments = [];
+            /** @var \Clicalmani\Routing\Segment */
+            foreach ($this as $segment) $segments[] = $segment;
+            
+            $this->exchangeArray($segments);
+        }
+    }
+
+    /**
      * Find the difference of two routes.
      * 
      * @param static $route
@@ -465,6 +497,19 @@ class Route extends \ArrayObject
     }
 
     /**
+     * Scope a resource route.
+     * 
+     * @param ?array $scope
+     * @return mixed
+     */
+    public function scoped(?array $scope = []) : mixed
+    {
+        if (empty($scope)) return @$this->resources['scoped'];
+
+        return $this->resources['scoped'] = $scope;
+    }
+
+    /**
      * Check custom route
      * 
      * @return bool
@@ -482,7 +527,18 @@ class Route extends \ArrayObject
      */
     public function named(string $name) : bool
     {
-        return $this->name === $name;
+        return !!preg_match("/^$name$/", $this->name);
+    }
+
+    /**
+     * Check if the route matches the given URI.
+     * 
+     * @param string $uri
+     * @return bool
+     */
+    public function is(string $uri) : bool
+    {
+        return !!preg_match("/&$uri$/", $this->uri);
     }
 
     public function __get(string $name)
