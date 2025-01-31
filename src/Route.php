@@ -2,9 +2,11 @@
 namespace Clicalmani\Routing;
 
 use Clicalmani\Foundation\Http\Requests\Request;
-use Clicalmani\Foundation\Http\Response\Response;
+use Clicalmani\Foundation\Http\Response;
 use Clicalmani\Foundation\Providers\ServiceProvider;
 use Clicalmani\Foundation\Support\Facades\Config;
+use Clicalmani\Psr7\NonBufferedBody;
+use Clicalmani\Psr7\StatusCodeInterface;
 
 /**
  * Route Class
@@ -327,7 +329,7 @@ class Route extends \ArrayObject
             if ( $middleware )
                 with( new $middleware )->handle(
                     $request,
-                    new Response,
+                    app()->response,
                     fn() => http_response_code()
                 );
 

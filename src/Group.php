@@ -125,8 +125,6 @@ class Group
             foreach ($segments as $index => $segment) {
                 $route[$index] = $segment;
             }
-
-            
         }
 
         return $this;

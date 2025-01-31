@@ -72,12 +72,8 @@ class Segment
     public function isValid() : bool
     {
         if (!$this->validator) return true;
-        
-        $value = (string)$this->value;
-        $valid = $this->validator->test($value);
-        // $this->value = $value;
-        
-        return $valid;
+        $value = (string) $this->value;
+        return $this->validator->test($value);
     }
 
     /**
