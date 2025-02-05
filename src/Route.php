@@ -1,7 +1,7 @@
 <?php
 namespace Clicalmani\Routing;
 
-use Clicalmani\Foundation\Http\Requests\Request;
+use Clicalmani\Foundation\Http\Request;
 use Clicalmani\Foundation\Http\Response;
 use Clicalmani\Foundation\Providers\ServiceProvider;
 use Clicalmani\Foundation\Support\Facades\Config;
@@ -327,13 +327,11 @@ class Route extends \ArrayObject
             else $middleware = $name_or_class;
             
             if ( $middleware )
-                with( new $middleware )->handle(
+                $response_code = with( new $middleware )->handle(
                     $request,
                     app()->response,
                     fn() => http_response_code()
                 );
-
-            $response_code = http_response_code();
             
             if (200 !== $response_code) return $response_code;
         }

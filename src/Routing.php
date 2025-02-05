@@ -424,7 +424,7 @@ class Routing
             return '/';
         }
 
-        return null;
+        return $name;
     }
 
     /**
