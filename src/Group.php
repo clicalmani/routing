@@ -26,9 +26,9 @@ class Group
     /**
      * Group middleware
      * 
-     * @var string
+     * @var ?string
      */
-    private string $middleware = '';
+    private ?string $middleware = null;
 
     /**
      * Group controller
@@ -42,8 +42,10 @@ class Group
      * 
      * @param ?\Closure $callback Call back function
      */
-    public function __construct(private ?\Closure $callback = null) 
+    public function __construct(private ?\Closure $callback = null, ?string $middleware = null) 
     {
+        $this->middleware = $middleware;
+
         Memory::currentGroup($this);
         if (NULL !== $this->callback) $this->group();
     }
@@ -82,7 +84,7 @@ class Group
      */
     public function group(?callable $callback = null) : static
     {
-        $this->callback = $this->callback ?? $callback;
+        $this->callback = $callback ?: $this->callback;
         $this->run();
         
         return $this;
@@ -97,10 +99,10 @@ class Group
     {
         if ($this->callback) call($this->callback);
         Memory::currentGroup(null);
-
+        
         if ($this->hasMiddleware()) {
             foreach ($this->routes as $route) {
-                $route->addMiddleware($this->middleware);
+                foreach (explode('|', $this->middleware) as $name) $route->addMiddleware($name);
             }
         }
     }
@@ -242,7 +244,7 @@ class Group
      */
     public function hasMiddleware() : bool
     {
-        return !empty($this->middleware);
+        return !!$this->middleware;
     }
 
     /**

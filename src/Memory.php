@@ -52,11 +52,11 @@ class Memory
     private static string $recorder = '';
 
     /**
-     * Current route uri
+     * Current route
      * 
      * @var \Clicalmani\Routing\Route|null
      */
-    private static Route|null $client_uri = null;
+    private static Route|null $current_route = null;
 
     /**
      * Current group
@@ -207,8 +207,8 @@ class Memory
      */
     public static function currentRoute(?Route $route = null) : mixed
     {
-        if ($route) return static::$client_uri = $route;
-        return static::$client_uri;
+        if ($route) return static::$current_route = $route;
+        return static::$current_route;
     }
 
     /**

@@ -62,7 +62,7 @@ class Routing
                 /** @var array */
                 $args = $parameters[0];
                 /** @var callable */
-                $callback = $parameters[1];
+                $callback = @$parameters[1] ?? null;
                 break;
         }
 
@@ -75,9 +75,11 @@ class Routing
         
         // Middleware
         if ( isset($args['middleware']) AND $name = $args['middleware']) 
-            foreach (explode('|', $name) as $name) $this->middleware($name);
+            foreach (explode('|', $name) as $name) {
+                $this->middleware($name);
+            }
         
-        return new Group($callback ?? null);
+        return new Group($callback, $name);
     }
 
     /**
@@ -91,8 +93,7 @@ class Routing
     {
         if ( $middleware = $this->getMiddleware($name_or_class) ) {
             $this->registerMiddleware($callback ? $callback: $middleware, $name_or_class);
-            $group = new Group;
-            $group->setMiddleware($name_or_class);
+            $group = new Group($callback, $name_or_class);
             return $group;
         } else
             throw new Exceptions\MiddlewareNotFoundException(

@@ -2,11 +2,8 @@
 namespace Clicalmani\Routing;
 
 use Clicalmani\Foundation\Http\Request;
-use Clicalmani\Foundation\Http\Response;
 use Clicalmani\Foundation\Providers\ServiceProvider;
 use Clicalmani\Foundation\Support\Facades\Config;
-use Clicalmani\Psr7\NonBufferedBody;
-use Clicalmani\Psr7\StatusCodeInterface;
 
 /**
  * Route Class
@@ -543,13 +540,13 @@ class Route extends \ArrayObject
 
     public function __get(string $name)
     {
-        switch ($name) {
-            case 'uri': return $this->uri;
-            case 'action': return $this->action;
-            case 'verb': return $this->verb;
-            case 'name': return $this->name;
-            case 'redirect': return $this->redirect;
-        }
+        return match ($name) {
+            'uri' => $this->uri,
+            'action' => $this->action,
+            'verb' => $this->verb,
+            'name' => $this->name,
+            'redirect' => $this->redirect,
+        };
     }
 
     public function __set(string $name, mixed $value)
@@ -572,8 +569,9 @@ class Route extends \ArrayObject
                  * Controller method action
                  */
                 elseif ( is_string($value) && $value ) {
-                    
-                    if ($group = Memory::currentGroup()) {
+                    if ( $action = action($value) ) {
+                        $this->action = $action;
+                    } elseif ($group = Memory::currentGroup()) {
                         if ($group->controller) $this->action = [$group->controller, $value];
                         else $this->action = [$value, '__invoke'];
                     }
