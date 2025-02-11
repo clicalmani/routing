@@ -1,7 +1,7 @@
 <?php
 namespace Clicalmani\Routing;
 
-use Clicalmani\Foundation\Validation\Validator;
+use Clicalmani\Validation\Validator;
 
 /**
  * SegmentValidator Class
