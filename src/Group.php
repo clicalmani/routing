@@ -141,6 +141,14 @@ class Group
     public function middleware(string|array $name_or_class) : void
     {
         $name_or_class = (array) $name_or_class;
+
+        if ( in_array('web', $name_or_class) ) {
+            $name_or_class = array_merge($name_or_class, \Clicalmani\Foundation\Http\Middlewares\Web::getGlobals());
+        }
+
+        if ( in_array('api', $name_or_class) ) {
+            $name_or_class = array_merge($name_or_class, \Clicalmani\Foundation\Http\Middlewares\Api::getGlobals());
+        }
         
         /** @var \Clicalmani\Routing\Route $route */
         foreach ($this->routes as $route) {

@@ -307,7 +307,13 @@ class Route extends \ArrayObject
      */
     public function getMiddlewares() : array
     {
-        return array_diff($this->middlewares, $this->excluded_middlewares);
+        if (\Clicalmani\Foundation\Routing\Route::isApi()) {
+            $globals = \Clicalmani\Foundation\Http\Middlewares\Api::getGlobals();
+        } else {
+            $globals = \Clicalmani\Foundation\Http\Middlewares\Web::getGlobals();
+        }
+
+        return array_unique(array_diff(array_merge($this->middlewares, $globals), $this->excluded_middlewares));
     }
 
     /**
@@ -317,20 +323,36 @@ class Route extends \ArrayObject
      */
     public function isAuthorized(?Request $request = null) : int|bool
     {
-        if (!$this->middlewares) return 200; // Authorized
+        if (!$this->getMiddlewares()) return 200; // Authorized
         
-        foreach ($this->middlewares as $name_or_class) {
+        foreach ($this->getMiddlewares() as $name_or_class) {
             if ($middleware = ServiceProvider::getProvidedMiddleware(\Clicalmani\Foundation\Routing\Route::gateway(), $name_or_class)) ;
             else $middleware = $name_or_class;
             
-            if ( $middleware )
-                $response_code = with( new $middleware )->handle(
+            if ( $middleware ) {
+                /** @var \Clicalmani\Foundation\Http\Response */
+                $response = app()->response;
+                /** @var \Clicalmani\Psr7\Response|\Clicalmani\Foundation\Http\RedirectInterface */
+                $auth = with( new $middleware )->handle(
                     $request,
-                    app()->response,
-                    fn() => http_response_code()
+                    $response,
+                    function(mixed $req = null, mixed $resp = null) use($request, $response) {
+                        $response = $resp ?? $response;
+                        $request = $req ?? $request;
+                        return $response->status(http_response_code());
+                    }
                 );
-            
-            if (200 !== $response_code) return $response_code;
+                
+                if ($auth instanceof \Clicalmani\Foundation\Http\Redirect) {
+                    die($auth);
+                }
+
+                Request::currentRequest($request);
+                app()->response = $response;
+                $response_code = $auth->getStatusCode();
+
+                if (200 !== $response_code) return $response_code;
+            }
         }
         
         return 200; // Authorized

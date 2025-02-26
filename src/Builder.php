@@ -63,6 +63,7 @@ abstract class Builder
         $builders = Config::route('builders');
         $default_builder = Config::route('default_builder');
 
+        /** @var \Clicalmani\Routing\Route */
         $route = (new $default_builder)->getRoute();
         
         if (!$route) {
