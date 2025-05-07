@@ -180,6 +180,8 @@ class Resource extends \ArrayObject
      */
     public function except(string|array $action) : static
     {
+        $action = (array) $action;
+        
         /** @var \Clicalmani\Routing\Route */
         foreach ($this->storage as $route) {
             if (is_array($route->action) && in_array(@$route->action[1], $action)) {

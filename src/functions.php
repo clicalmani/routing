@@ -9,8 +9,12 @@ namespace Clicalmani\Routing;
  */
 function action(string|array $value) : array {
     if ( is_string($value) ) {
-        if (preg_match('/^([A-Za-z0-9_]+)@([A-Za-z0-9_]+)$/', $value, $matches)) {
+        if ( preg_match('/^([A-Za-z0-9_]+)@([A-Za-z0-9_]+)$/', $value, $matches) ) {
             return ["\\App\\Http\\Controllers\\" . $matches[1], $matches[2]];
+        }
+
+        if ( strpos($value, '\\') ) {
+            return [$value, '__invoke'];
         }
     }
 

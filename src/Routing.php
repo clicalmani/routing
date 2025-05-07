@@ -41,7 +41,7 @@ class Routing
      */
     public function isApi() : bool
     {
-        if ( inConsoleMode() && defined('CONSOLE_API_ROUTE') ) return true;
+        if ( isConsoleMode() && defined('CONSOLE_API_ROUTE') ) return true;
         
         $api = \Clicalmani\Foundation\Support\Facades\Config::route('api_prefix');
         

@@ -35,7 +35,7 @@ trait Method
     public function uri() : string
     {
         // Do not route in console mode
-        if ( inConsoleMode() ) return '@console';
+        if ( isConsoleMode() ) return '@console';
         
         $url = parse_url(
             $_SERVER['REQUEST_URI']
