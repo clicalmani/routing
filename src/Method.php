@@ -47,9 +47,9 @@ trait Method
     /**
      * Return the current route.
      * 
-     * @return \Clicalmani\Routing\Route|null
+     * @return ?\Clicalmani\Routing\Route
      */
-    public function current(): Route|null
+    public function current(): ?Route
     {
         return Memory::currentRoute();
     }
@@ -141,8 +141,7 @@ trait Method
         foreach ($matches as $verb) {
             $verb = strtolower($verb);
             if ( array_key_exists($verb, Memory::getRoutes()) ) {
-                $validator = $this->register($verb, $uri, $action);
-                $resource[] = $validator;
+                $resource[] = $this->register($verb, $uri, $action);
             }
         }
 

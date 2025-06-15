@@ -63,9 +63,9 @@ class BasicBuilder extends Builder implements \Clicalmani\Routing\BuilderInterfa
      * Locate the current route in the candidate routes list.
      * 
      * @param \Clicalmani\Routing\Route[] $matches
-     * @return \Clicalmani\Routing\Route|null
+     * @return ?\Clicalmani\Routing\Route
      */
-    public function locate(array $matches) : \Clicalmani\Routing\Route|null
+    public function locate(array $matches) : ?\Clicalmani\Routing\Route
     {
         /**
          * Client route
@@ -178,9 +178,9 @@ class BasicBuilder extends Builder implements \Clicalmani\Routing\BuilderInterfa
     /**
      * Build the requested route. 
      * 
-     * @return \Clicalmani\Routing\Route|null
+     * @return ?\Clicalmani\Routing\Route
      */
-    public function getRoute() : \Clicalmani\Routing\Route|null
+    public function getRoute() : ?\Clicalmani\Routing\Route
     {
         return $this->locate(
             $this->matches( 
@@ -197,6 +197,7 @@ class BasicBuilder extends Builder implements \Clicalmani\Routing\BuilderInterfa
      */
     public function parameters(array $candidates) : array
     {
+        /** @var \Clicalmani\Routing\Parameter[] */
         $arr = [];
         $client = $this->getClientRoute();
 

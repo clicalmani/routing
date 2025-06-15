@@ -188,9 +188,9 @@ class Memory
      * Returns a registered guard
      * 
      * @param string $uid Guard unique id
-     * @return array|null Route guard on success, or null on failure
+     * @return ?array Route guard on success, or null on failure
      */
-    public static function getGuard(string $uid) : array|null
+    public static function getGuard(string $uid) : ?array
     {
         if ( array_key_exists($uid, static::$guards) ) {
             return static::$guards[$uid];

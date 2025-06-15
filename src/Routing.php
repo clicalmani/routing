@@ -54,7 +54,7 @@ class Routing
     /**
      * Group routes under a common prefix or middleware
      */
-    public function group(mixed ...$parameters) : \Clicalmani\Routing\Group|null
+    public function group(mixed ...$parameters) : ?\Clicalmani\Routing\Group
     {
         switch( count($parameters) ) {
             case 1: return new Group($parameters[0]);
@@ -93,8 +93,7 @@ class Routing
     {
         if ( $middleware = $this->getMiddleware($name_or_class) ) {
             $this->registerMiddleware($callback ? $callback: $middleware, $name_or_class);
-            $group = new Group($callback, $name_or_class);
-            return $group;
+            return new Group($callback, $name_or_class);
         } else
             throw new Exceptions\MiddlewareNotFoundException(
                 sprintf("Unknow middleware %s specified", $name_or_class)
@@ -122,9 +121,7 @@ class Routing
          */
         else $middleware = ServiceProvider::getProvidedMiddleware($this->gateway(), $main);
 
-        if ( NULL === $middleware ) return null;
-        
-        return new $middleware;
+        return $middleware ? new $middleware : null;
     }
 
     /**
@@ -216,12 +213,15 @@ class Routing
      * Create a new route
      * 
      * @param string $uri
-     * @return \Clicalmani\Routing\Route
+     * @return ?\Clicalmani\Routing\Route
      */
-    private function createRoute(string $uri) : Route
+    private function createRoute(string $uri) : ?Route
     {
-        $builder = Config::route('default_builder');
-        return (new $builder)->create($uri);
+        if ($builder = Config::route('default_builder')) {
+            return (new $builder)->create($uri);
+        }
+        
+        return null;
     }
 
     /**
@@ -232,8 +232,11 @@ class Routing
      */
     public function routeExists(Route $route) : bool
     {
-        $builder = Config::route('default_builder');
-        return (new $builder)->isBuilt($route);
+        if ($builder = Config::route('default_builder')) {
+            return (new $builder)->isBuilt($route);
+        }
+        
+        return false;
     }
 
     /**

@@ -60,6 +60,7 @@ abstract class Builder
      */
     public static function build() : Route|null
     {
+        /** @var string[] */
         $builders = Config::route('builders');
         $default_builder = Config::route('default_builder');
 
@@ -68,13 +69,14 @@ abstract class Builder
         
         if (!$route) {
             foreach ($builders as $builder) {
+                /** @var \Clicalmani\Routing\BuilderInterface */
                 $builder = new $builder;
                 $route = $builder->getRoute();
-                if ($route) break;
+                if (NULL !== $route) break;
             }
         }
         
-        // Run before navigation hook
+        /** @var callable(\Clicalmani\Routing\Route $route) : \Clicalmani\Routing\Route */
         if ($hook = $route?->beforeHook()) return $hook( $route );
 
         // Fire TPS

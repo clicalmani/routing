@@ -2,6 +2,7 @@
 namespace Clicalmani\Routing;
 
 use Clicalmani\Foundation\Http\Request;
+use Clicalmani\Foundation\Http\Requests\RequestInterface;
 use Clicalmani\Foundation\Providers\ServiceProvider;
 use Clicalmani\Foundation\Support\Facades\Config;
 
@@ -78,7 +79,7 @@ class Route extends \ArrayObject
      * 
      * @var int
      */
-    private int|null $redirect = null;
+    private ?int $redirect = null;
 
     /**
      * @override
@@ -127,10 +128,10 @@ class Route extends \ArrayObject
      * Remove route segment at the specified index.
      * 
      * @param int $index
-     * @param ?bool $preserve_keys Preserve array keys, Default true
+     * @param bool $preserve_keys Preserve array keys, Default true
      * @return void
      */
-    public function removeSegmentAt(int $index, ?bool $preserve_keys = true) : void
+    public function removeSegmentAt(int $index, bool $preserve_keys = true) : void
     {
         unset($this[$index]);
         $this->resetUri();
@@ -148,7 +149,7 @@ class Route extends \ArrayObject
     /**
      * Find the difference of two routes.
      * 
-     * @param static $route
+     * @param self $route
      * @return string[]
      */
     public function diff(Route $route) : array
@@ -183,6 +184,7 @@ class Route extends \ArrayObject
     {
         if ($route->uri === $this->uri) return true;
         
+        /** @var string[] */
         $ret = [];
 
         /** @var \Clicalmani\Routing\Segment */
@@ -231,6 +233,7 @@ class Route extends \ArrayObject
      */
     public function getSegments() : array
     {
+        /** @var \Clicalmani\Routing\Segment[] */
         $segments = [];
 
         /** @var \Clicalmani\Routing\Segment */
@@ -265,7 +268,7 @@ class Route extends \ArrayObject
      * 
      * @return \Clicalmani\Routing\Segment[]
      */
-    public function getParameters()
+    public function getParameters() : array
     {
         /** @var \Clicalmani\Routing\Segment[] */
         $params = [];
@@ -321,7 +324,7 @@ class Route extends \ArrayObject
      * 
      * @return int|bool
      */
-    public function isAuthorized(?Request $request = null) : int|bool
+    public function isAuthorized(?RequestInterface $request = null) : int|bool
     {
         if (!$this->getMiddlewares()) return 200; // Authorized
         
@@ -363,7 +366,7 @@ class Route extends \ArrayObject
      * 
      * @return bool
      */
-    public function isDoubled()
+    public function isDoubled() : bool
     {
         $count = 0;
 
@@ -378,9 +381,9 @@ class Route extends \ArrayObject
     /**
      * Before navigation hook
      * 
-     * @return ?callable|null
+     * @return ?callable
      */
-    public function beforeHook(?callable $hook = null) : callable|null
+    public function beforeHook(?callable $hook = null) : ?callable
     {
         if ($hook) {
             $this->hooks['before'] = $hook;
@@ -393,9 +396,9 @@ class Route extends \ArrayObject
     /**
      * After navigation hook
      * 
-     * @return ?callable|null
+     * @return ?callable
      */
-    public function afterHook(?callable $hook = null) : callable|null
+    public function afterHook(?callable $hook = null) : ?callable
     {
         if ($hook) {
             $this->hooks['after'] = $hook;
@@ -415,9 +418,7 @@ class Route extends \ArrayObject
     {
         if (NULL === $callback) return @$this->resources['missing'];
 
-        $this->resources['missing'] = $callback;
-        
-        return null;
+        return $this->resources['missing'] = $callback;
     }
 
     /**
@@ -430,9 +431,7 @@ class Route extends \ArrayObject
     {
         if (NULL === $orderBy) return @$this->resources['order_by'];
 
-        $this->resources['order_by'] = $orderBy;
-
-        return null;
+        return $this->resources['order_by'] = $orderBy;
     }
 
     /**
@@ -445,19 +444,17 @@ class Route extends \ArrayObject
     {
         if (NULL === $distinct) return @$this->resources['distinct'];
 
-        $this->resources['distinct'] = $distinct;
-
-        return null;
+        return $this->resources['distinct'] = $distinct;
     }
 
     /**
      * Limit result set
      * 
-     * @param ?int $offset
-     * @param ?int $row_count
+     * @param int $offset
+     * @param int $row_count
      * @return mixed
      */
-    public function limitResult(?int $offset = 0, ?int $row_count = 0) : mixed
+    public function limitResult(int $offset = 0, int $row_count = 0) : mixed
     {
         if (0 === $row_count) return @$this->resources['limit'];
 
@@ -479,9 +476,7 @@ class Route extends \ArrayObject
     {
         if (NULL === $calc) return @$this->resources['calc'];
 
-        $this->resources['calc'] = $calc;
-
-        return null;
+        return $this->resources['calc'] = $calc;
     }
 
     /**
@@ -495,9 +490,7 @@ class Route extends \ArrayObject
     {
         if (NULL === $table) return @$this->resources['from'];
 
-        $this->resources['from'] = $table;
-
-        return null;
+        return $this->resources['from'] = $table;
     }
 
     /**
@@ -510,18 +503,16 @@ class Route extends \ArrayObject
     {
         if (NULL === $ignore) return @$this->resources['ignore'];
 
-        $this->resources['ignore'] = $ignore;
-
-        return null;
+        return $this->resources['ignore'] = $ignore;
     }
 
     /**
      * Scope a resource route.
      * 
-     * @param ?array $scope
+     * @param array $scope
      * @return mixed
      */
-    public function scoped(?array $scope = []) : mixed
+    public function scoped(array $scope = []) : mixed
     {
         if (empty($scope)) return @$this->resources['scoped'];
 

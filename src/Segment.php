@@ -21,16 +21,16 @@ class Segment
     /**
      * Segment value
      * 
-     * @var string|null
+     * @var ?string
      */
-    private string|null $value = null;
+    private ?string $value = null;
 
     /**
      * Segment value
      * 
-     * @var \Clicalmani\Routing\SegmentValidator|null
+     * @var ?\Clicalmani\Routing\SegmentValidator
      */
-    private SegmentValidator|null $validator = null;
+    private ?SegmentValidator $validator = null;
 
     /**
      * Is parameter
@@ -72,8 +72,7 @@ class Segment
     public function isValid() : bool
     {
         if (!$this->validator) return true;
-        $value = (string) $this->value;
-        return $this->validator->test($value);
+        return $this->validator->test((string) $this->value);
     }
 
     /**
@@ -115,10 +114,10 @@ class Segment
     /**
      * Set segment validator
      * 
-     * @param \Clicalmani\Routing\SegmentValidator|null $validator
+     * @param ?\Clicalmani\Routing\SegmentValidator $validator
      * @return void
      */
-    public function setValidator(SegmentValidator|null $validator) : void
+    public function setValidator(?SegmentValidator $validator) : void
     {
         $this->validator = $validator;
     }

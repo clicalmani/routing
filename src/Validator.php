@@ -78,9 +78,9 @@ class Validator
      * Validate numeric parameter's value.
      * 
      * @param string|array $params
-     * @return static
+     * @return self
      */
-    public function whereNumber(string|array $params) : static
+    public function whereNumber(string|array $params) : self
     {
         $params = (array)$params;
 
@@ -93,9 +93,9 @@ class Validator
      * Validate integer parameter's value.
      * 
      * @param string|array $params
-     * @return static
+     * @return self
      */
-    public function whereInt(string|array $params) : static
+    public function whereInt(string|array $params) : self
     {
         $params = (array)$params;
 
@@ -108,9 +108,9 @@ class Validator
      * Validate float parameter's value
      * 
      * @param string|array $params
-     * @return static
+     * @return self
      */
-    public function whereFloat(string|array $params) : static
+    public function whereFloat(string|array $params) : self
     {
         $params = (array)$params;
 
@@ -123,10 +123,10 @@ class Validator
      * Validate parameter's against an enumerated values.
      * 
      * @param string|array $params
-     * @param ?array $list Enumerated list
-     * @return static
+     * @param array $list Enumerated list
+     * @return self
      */
-    public function whereEnum(string|array $params, ?array $list = []) : static
+    public function whereEnum(string|array $params, array $list = []) : self
     {
         $params = (array)$params;
 
@@ -139,9 +139,9 @@ class Validator
      * Validate a token
      * 
      * @param string|array $params
-     * @return static
+     * @return self
      */
-    public function whereToken(string|array $params) : static
+    public function whereToken(string|array $params) : self
     {
         $params = (array)$params;
 
@@ -155,9 +155,9 @@ class Validator
      * 
      * @param string|array $params
      * @param string $uri
-     * @return static
+     * @return self
      */
-    public function where(string|array $params, string $uri) : static
+    public function where(string|array $params, string $uri) : self
     {
         $params = (array)$params;
 
@@ -171,9 +171,9 @@ class Validator
      * 
      * @param string|array $params
      * @param string $pattern A regular expression pattern without delimeters. Back slash (/) character will be used as delimiter
-     * @return static
+     * @return self
      */
-    public function wherePattern(string|array $params, string $pattern) : static
+    public function wherePattern(string|array $params, string $pattern) : self
     {
         $params = (array)$params;
 
@@ -189,9 +189,9 @@ class Validator
      * @param string $param
      * @param callable $callback A callback function to be executed before navigation. The function receive the parameter value
      * as it's unique argument and must return false to halt the navigation, or true otherwise.
-     * @return static
+     * @return self
      */
-    public function guardAgainst($param, $callback) : static
+    public function guardAgainst(string $param, callable $callback) : self
     {
         $uid = uniqid('gard-');
         
@@ -205,9 +205,9 @@ class Validator
      * Define route middleware
      * 
      * @param string|string[] $name Middleware name all class
-     * @return static
+     * @return self
      */
-    public function middleware(string|array $name_or_class) : static
+    public function middleware(string|array $name_or_class) : self
     {
         $name_or_class = (array) $name_or_class;
 

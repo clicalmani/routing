@@ -36,9 +36,9 @@ class SegmentValidator extends Validator
     public function test(string &$value) : bool
     {
         $input[$this->name] = $value;
-        $valid = parent::sanitize($input, $this->uris);
-        
-        if ( TRUE == $valid ) $value = $input[$this->name];
+        if ($valid = parent::sanitize($input, $this->uris)) {
+            $value = $input[$this->name];
+        }
         
         return $valid;
     }

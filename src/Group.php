@@ -80,22 +80,20 @@ class Group
      * Controller group
      * 
      * @param ?callable $callback
-     * @return static
+     * @return self
      */
-    public function group(?callable $callback = null) : static
+    public function group(?callable $callback = null) : self
     {
         $this->callback = $callback ?: $this->callback;
-        $this->run();
-        
-        return $this;
+        return $this->run();
     }
 
     /**
      * Run group
      * 
-     * @return void
+     * @return self
      */
-    public function run() : void
+    public function run() : self
     {
         if ($this->callback) call($this->callback);
         Memory::currentGroup(null);
@@ -105,15 +103,17 @@ class Group
                 foreach (explode('|', $this->middleware) as $name) $route->addMiddleware($name);
             }
         }
+
+        return $this;
     }
 
     /**
      * Prefix group's routes
      * 
      * @param string $prefix
-     * @return static
+     * @return self
      */
-    public function prefix(string $prefix) : static
+    public function prefix(string $prefix) : self
     {
         if ($prefix === \Clicalmani\Foundation\Support\Facades\Config::route('api_prefix')) 
             $this->routes = Memory::getRoutesByVerb(\Clicalmani\Foundation\Routing\Route::getClientVerb());
@@ -181,9 +181,9 @@ class Group
      * 
      * @param string $param
      * @param string $pattern
-     * @return static
+     * @return self
      */
-    public function pattern(string $param, string $pattern) : static
+    public function pattern(string $param, string $pattern) : self
     {
         return $this->patterns([$param], [$pattern]);
     }
@@ -194,9 +194,9 @@ class Group
      * @see RouteGroup::patterns()
      * @param string[] $params
      * @param string[] $patters
-     * @return static
+     * @return self
      */
-    public function patterns(array $params, array $patterns) : static
+    public function patterns(array $params, array $patterns) : self
     {
         foreach ($this->routes as $route) {
             foreach ($params as $index => $param) {
@@ -217,9 +217,9 @@ class Group
      * 
      * @param string $param
      * @param string $rule
-     * @return static
+     * @return self
      */
-    public function where(string $param, string $rule) : static
+    public function where(string $param, string $rule) : self
     {
         /** @var \Clicalmani\Routing\Route */
         foreach ($this->routes as $route) {
