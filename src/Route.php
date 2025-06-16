@@ -350,7 +350,7 @@ class Route extends \ArrayObject
                     die($auth);
                 }
 
-                Request::currentRequest($request);
+                Request::current($request);
                 app()->response = $response;
                 $response_code = $auth->getStatusCode();
 
