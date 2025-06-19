@@ -7,7 +7,7 @@ namespace Clicalmani\Routing;
  * @package clicalmani/routing 
  * @author @clicalmani
  */
-class Group
+class Group implements Factory\GroupInterface
 {
     /**
      * Terminate grouping
@@ -50,49 +50,28 @@ class Group
         if (NULL !== $this->callback) $this->group();
     }
 
-    /**
-     * Start grouping
-     * 
-     * @return void
-     */
     public function start() : void
     {
         $this->terminate = false;
         call($this->callback);
     }
 
-    /**
-     * Stop grouping
-     * 
-     * @return void
-     */
     public function stop() : void
     {
         $this->terminate = true;
     }
 
-    public function isComplete()
+    public function isComplete() : bool
     {
         return $this->terminate;
     }
 
-    /**
-     * Controller group
-     * 
-     * @param ?callable $callback
-     * @return self
-     */
     public function group(?callable $callback = null) : self
     {
         $this->callback = $callback ?: $this->callback;
         return $this->run();
     }
 
-    /**
-     * Run group
-     * 
-     * @return self
-     */
     public function run() : self
     {
         if ($this->callback) call($this->callback);
@@ -107,12 +86,6 @@ class Group
         return $this;
     }
 
-    /**
-     * Prefix group's routes
-     * 
-     * @param string $prefix
-     * @return self
-     */
     public function prefix(string $prefix) : self
     {
         if ($prefix === \Clicalmani\Foundation\Support\Facades\Config::route('api_prefix')) 
@@ -132,12 +105,6 @@ class Group
         return $this;
     }
 
-    /**
-     * Define one or more middlewares on the routes group
-     * 
-     * @param string|string[] $name_or_classe Middleware name or class
-     * @return void
-     */
     public function middleware(string|array $name_or_class) : void
     {
         $name_or_class = (array) $name_or_class;
@@ -158,12 +125,6 @@ class Group
         }
     }
 
-    /**
-     * Remove one or more middlewares from the routes group
-     * 
-     * @param string|string[] $name_or_class Middleware name or class
-     * @return void
-     */
     public function withoutMiddleware(string|array $name_or_class) : void
     {
         $name_or_class = (array) $name_or_class;
@@ -176,26 +137,11 @@ class Group
         }
     }
 
-    /**
-     * Set parameter pattern. Useful for optional parameters
-     * 
-     * @param string $param
-     * @param string $pattern
-     * @return self
-     */
     public function pattern(string $param, string $pattern) : self
     {
         return $this->patterns([$param], [$pattern]);
     }
 
-    /**
-     * Set multiple patterns
-     * 
-     * @see RouteGroup::patterns()
-     * @param string[] $params
-     * @param string[] $patters
-     * @return self
-     */
     public function patterns(array $params, array $patterns) : self
     {
         foreach ($this->routes as $route) {
@@ -212,13 +158,6 @@ class Group
         return $this;
     }
 
-    /**
-     * Validate parameter's value against any validator.
-     * 
-     * @param string $param
-     * @param string $rule
-     * @return self
-     */
     public function where(string $param, string $rule) : self
     {
         /** @var \Clicalmani\Routing\Route */
@@ -234,12 +173,6 @@ class Group
         return $this;
     }
 
-    /**
-     * Add group route
-     * 
-     * @param \Clicalmani\Routing\Route $route
-     * @return void
-     */
     public function addRoute(Route $route) : void
     {
         $this->routes[] = $route;
@@ -255,33 +188,16 @@ class Group
         return !!$this->middleware;
     }
 
-    /**
-     * Get group middleware
-     * 
-     * @return string
-     */
     public function getMiddleware() : string
     {
         return $this->middleware;
     }
 
-    /**
-     * Set group middleware
-     * 
-     * @param string $middleware
-     * @return void
-     */
     public function setMiddleware(string $middleware) : void
     {
         $this->middleware = $middleware;
     }
 
-    /**
-     * Share resources with a sub-group
-     * 
-     * @param Group $sub
-     * @return void
-     */
     public function shareResourcesWith(Group $sub) : void
     {
         if ($this->controller) $sub->controller = $this->controller;

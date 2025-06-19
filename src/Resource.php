@@ -9,7 +9,7 @@ use Clicalmani\Foundation\Collection\Collection;
  * @package clicalmani/routing 
  * @author @clicalmani
  */
-class Resource extends \ArrayObject
+class Resource extends \ArrayObject implements Factory\RouteResourceInterface
 {
     public function __construct(private ?Collection $storage = new Collection) {}
 
@@ -29,12 +29,6 @@ class Resource extends \ArrayObject
         }
     }
 
-    /**
-     * Override the default not found behaviour.
-     * 
-     * @param callable $closure A closure function that returns the response type.
-     * @return self
-     */
     public function missing(callable $closure) : self
     {
         /** @var \Clicalmani\Routing\Route */
@@ -45,12 +39,6 @@ class Resource extends \ArrayObject
         return $this;
     }
 
-    /**
-     * Show distinct rows on resource view
-     * 
-     * @param bool $enable
-     * @return self
-     */
     public function distinct(bool $enable = false) : self
     {
         /** @var \Clicalmani\Routing\Route */
@@ -61,12 +49,6 @@ class Resource extends \ArrayObject
         return $this;
     }
 
-    /**
-     * Ignore primary key duplicate warning
-     * 
-     * @param bool $enable
-     * @return self
-     */
     public function ignore(bool $enable = false) : self
     {
         /** @var \Clicalmani\Routing\Route */
@@ -78,12 +60,6 @@ class Resource extends \ArrayObject
         return $this;
     }
 
-    /**
-     * From statement when deleting from multiple tables
-     * 
-     * @param string $table
-     * @return self
-     */
     public function from(string $table) : self
     {
         /** @var \Clicalmani\Routing\Route */
@@ -94,12 +70,6 @@ class Resource extends \ArrayObject
         return $this;
     }
 
-    /**
-     * Enable SQL CAL_FOUND_ROWS
-     * 
-     * @param bool $enable
-     * @return self
-     */
     public function calcRows(bool $enable = false) : self
     {
         /** @var \Clicalmani\Routing\Route */
@@ -110,13 +80,6 @@ class Resource extends \ArrayObject
         return $this;
     }
 
-    /**
-     * Limit number of rows in the result set
-     * 
-     * @param int $offset
-     * @param int $row_count
-     * @return self
-     */
     public function limit(int $offset = 0, int $row_count = 0) : self
     {
         /** @var \Clicalmani\Routing\Route */
@@ -127,12 +90,6 @@ class Resource extends \ArrayObject
         return $this;
     }
 
-    /**
-     * Order by
-     * 
-     * @param string $order
-     * @return self
-     */
     public function orderBy(string $order = 'NULL') : self
     {
         /** @var \Clicalmani\Routing\Route */
@@ -143,9 +100,6 @@ class Resource extends \ArrayObject
         return $this;
     }
 
-    /**
-     * @return self
-     */
     public function middleware(string $name_or_class) : self
     {
         /** @var \Clicalmani\Routing\Route */
@@ -156,12 +110,6 @@ class Resource extends \ArrayObject
         return $this;
     }
 
-    /**
-     * Filter the resource to only include specified actions.
-     * 
-     * @param string|array $action
-     * @return self
-     */
     public function only(string|array $action) : self
     {
         $action = (array) $action;
@@ -175,12 +123,6 @@ class Resource extends \ArrayObject
         return $this;
     }
 
-    /**
-     * Filter the resource to exclude specified actions.
-     * 
-     * @param string|array $action
-     * @return self
-     */
     public function except(string|array $action) : self
     {
         $action = (array) $action;
@@ -195,12 +137,6 @@ class Resource extends \ArrayObject
         return $this;
     }
 
-    /**
-     * Scope the resource routes.
-     * 
-     * @param array $scope
-     * @return self
-     */
     public function scoped(array $scope) : self
     {
         /** @var \Clicalmani\Routing\Route */
@@ -211,11 +147,6 @@ class Resource extends \ArrayObject
         return $this;
     }
 
-    /**
-     * Defines shallow nested routes.
-     * 
-     * @return self
-     */
     public function shallow() : self
     {
         /** @var \Clicalmani\Routing\Route */
@@ -233,12 +164,6 @@ class Resource extends \ArrayObject
         return $this;
     }
 
-    /**
-     * Set custom names for the resource routes.
-     * 
-     * @param array $custom_names
-     * @return self
-     */
     public function names(array $custom_names) : self
     {
         /** @var \Clicalmani\Routing\Route */

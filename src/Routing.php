@@ -10,35 +10,20 @@ use Clicalmani\Foundation\Support\Facades\Config;
  * @package clicalmani/routing 
  * @author @clicalmani
  */
-class Routing
+class Routing implements Factory\RoutingInterface
 {
     use Method;
 
-    /**
-     * Returns client's verb
-     * 
-     * @return string
-     */
     public function getClientVerb() : string
     {
         return strtolower( (string) @ $_SERVER['REQUEST_METHOD'] );
     }
 
-    /**
-     * Get client's gateway
-     * 
-     * @return string
-     */
     public function gateway() : string
     {
         return $this->isApi() ? 'api': 'web';
     }
 
-    /**
-     * Detect api gateway
-     * 
-     * @return bool
-     */
     public function isApi() : bool
     {
         if ( isConsoleMode() && defined('CONSOLE_API_ROUTE') ) return true;
@@ -51,9 +36,6 @@ class Routing
         );
     }
 
-    /**
-     * Group routes under a common prefix or middleware
-     */
     public function group(mixed ...$parameters) : ?\Clicalmani\Routing\Group
     {
         switch( count($parameters) ) {
@@ -82,13 +64,6 @@ class Routing
         return new Group($callback, $name);
     }
 
-    /**
-     * Attach a middleware
-     * 
-     * @param string $name_or_class
-     * @param mixed $callback If omitted the middleware will be considered as an inline middleware
-     * @return \Clicalmani\Routing\Group
-     */
     public function middleware(string $name_or_class, mixed $callback = null) : Group
     {
         if ( $middleware = $this->getMiddleware($name_or_class) ) {
@@ -175,35 +150,16 @@ class Routing
         ];
     }
 
-    /**
-     * Set a global pattern
-     * 
-     * @param string $param Parameter name
-     * @param string $pattern A regular expression pattern without delimiters
-     * @return void
-     */
     public function pattern(string $param, string $pattern): void
     {
         Memory::registerPattern($param, $pattern);
     }
 
-    /**
-     * Set a global validation constraint.
-     * 
-     * @param string $param Parameter name.
-     * @param string $constraint A validation constraint.
-     * @return void
-     */
     public function validate(string $param, string $constraint): void
     {
         Memory::registerConstraint($param, $constraint);
     }
 
-    /**
-     * Is grouping
-     * 
-     * @return bool
-     */
     public function isGrouping() : bool
     {
         return !!Memory::currentGroup();
@@ -401,12 +357,6 @@ class Routing
         return sprintf('/%s', trim(preg_replace('/\/\//', '/', $uri), '/'));
     }
 
-    /**
-     * Revolve a named route. 
-     * 
-     * @param mixed ...$params 
-     * @return mixed
-     */
     public function resolve(mixed ...$params) : mixed
     {
         /**
@@ -431,13 +381,7 @@ class Routing
         return $name;
     }
 
-    /**
-     * Find a route by name
-     * 
-     * @param string $name Route name
-     * @return \Clicalmani\Routing\Route|null
-     */
-    public function findByName(string $name) : mixed
+    public function findByName(string $name) : ?\Clicalmani\Routing\Route
     {
         /** @var \Clicalmani\Routing\Route */
         foreach (Memory::getRoutes() as $verb => $routes) {

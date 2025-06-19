@@ -9,7 +9,7 @@ use Clicalmani\Foundation\Support\Facades\Config;
  * @package clicalmani/routing 
  * @author @clicalmani
  */
-class Segment 
+class Segment implements Factory\RouteSegmentInterface
 {
     /**
      * Segment name
@@ -32,31 +32,16 @@ class Segment
      */
     private ?SegmentValidator $validator = null;
 
-    /**
-     * Is parameter
-     * 
-     * @return bool
-     */
     public function isParameter() : bool
     {
         return !!preg_match("/^" . Config::route('parameter_prefix') . "/", $this->name);
     }
 
-    /**
-     * Check if segment has a validator.
-     * 
-     * @return bool
-     */
     public function isValidable() : bool
     {
         return !!$this->validator;
     }
 
-    /**
-     * Get segment name
-     * 
-     * @return string|false
-     */
     public function getName() : string|false
     {
         if (FALSE === $this->isParameter()) return $this->name;
@@ -64,32 +49,18 @@ class Segment
         return substr($this->name, 1);
     }
 
-    /**
-     * Validate a parameter
-     * 
-     * @return bool true on success, false on failure
-     */
     public function isValid() : bool
     {
         if (!$this->validator) return true;
-        return $this->validator->test((string) $this->value);
+        $value = (string) $this->value;
+        return $this->validator->test($value);
     }
 
-    /**
-     * Check optional segment
-     * 
-     * @return bool
-     */
     public function isOptional() : bool
     {
         return preg_match("/^\?" . Config::route('parameter_prefix') . "/", $this->name);
     }
 
-    /**
-     * Make an optional segment required.
-     * 
-     * @return void
-     */
     public function makeRequired() : void
     {
         $this->name = str_replace('?', '', $this->name);
@@ -111,23 +82,11 @@ class Segment
         $_REQUEST[$this->getName()] = $this->value;
     }
 
-    /**
-     * Set segment validator
-     * 
-     * @param ?\Clicalmani\Routing\SegmentValidator $validator
-     * @return void
-     */
     public function setValidator(?SegmentValidator $validator) : void
     {
         $this->validator = $validator;
     }
 
-    /**
-     * Compare the given segment to the current one.
-     * 
-     * @param \Clicalmani\Routing\Segment $segment
-     * @return bool
-     */
     public function equals(Segment $segment) : bool
     {
         return $segment->getName() === $this->getName();

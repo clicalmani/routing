@@ -9,7 +9,7 @@ use Clicalmani\Validation\Validator;
  * @package clicalmani/routing 
  * @author @clicalmani
  */
-class SegmentValidator extends Validator
+class SegmentValidator extends Validator implements Factory\RouteSegmentValidatorInterface
 {
     /**
      * Parameter to be validated
@@ -27,12 +27,6 @@ class SegmentValidator extends Validator
         ];
     }
 
-    /**
-     * Test a value or fail
-     * 
-     * @param string &$value
-     * @return bool
-     */
     public function test(string &$value) : bool
     {
         $input[$this->name] = $value;

@@ -12,7 +12,7 @@ use Clicalmani\Foundation\Support\Facades\Config;
  * @package clicalmani/routing 
  * @author @clicalmani
  */
-class Route extends \ArrayObject
+class Route extends \ArrayObject implements Factory\RouteInterface
 {
     /**
      * Route uri
@@ -94,7 +94,7 @@ class Route extends \ArrayObject
         $this->uri = $this->uri();
     }
 
-    public function uri()
+    public function uri() : string
     {
         $uri = [];
 
@@ -103,34 +103,16 @@ class Route extends \ArrayObject
         return join('/', $uri);
     }
 
-    /**
-     * URI setter
-     * 
-     * @param string $new_uri
-     * @return void
-     */
     public function setUri(string $new_uri) : void
     {
         $this->uri = $new_uri;
     }
 
-    /**
-     * Reset route URI
-     * 
-     * @return void
-     */
     public function resetUri() : void
     {
         $this->uri = $this->uri();
     }
 
-    /**
-     * Remove route segment at the specified index.
-     * 
-     * @param int $index
-     * @param bool $preserve_keys Preserve array keys, Default true
-     * @return void
-     */
     public function removeSegmentAt(int $index, bool $preserve_keys = true) : void
     {
         unset($this[$index]);
@@ -146,22 +128,11 @@ class Route extends \ArrayObject
         }
     }
 
-    /**
-     * Find the difference of two routes.
-     * 
-     * @param self $route
-     * @return string[]
-     */
-    public function diff(Route $route) : array
+    public function diff(self $route) : array
     {
         return array_diff($this->getSegmentsNames(), $route->getSegmentsNames());
     }
 
-    /**
-     * Returns an array of route segments' names.
-     * 
-     * @return string[]
-     */
     public function getSegmentsNames() : array
     {
         $ret = [];
@@ -174,12 +145,6 @@ class Route extends \ArrayObject
         return $ret;
     }
 
-    /**
-     * Compare the given route to the current route.
-     * 
-     * @param \Clicalmani\Routing\Route $route
-     * @return bool
-     */
     public function equals(Route $route) : bool
     {
         if ($route->uri === $this->uri) return true;
@@ -200,21 +165,11 @@ class Route extends \ArrayObject
         return false;
     }
 
-    /**
-     * Check if there is one or more optional parameters.
-     * 
-     * @return bool
-     */
     public function seemsOptional() : bool
     {
         return !!preg_match("/\?" . Config::route('parameter_prefix') . ".*([^\/])?/", $this->uri);
     }
 
-    /**
-     * Returns optional segments
-     * 
-     * @return \Clicalmani\Routing\Segment[]
-     */
     public function getOptions() : array
     {
         $segments = [];
@@ -226,11 +181,6 @@ class Route extends \ArrayObject
         return $segments;
     }
 
-    /**
-     * Returns route segments
-     * 
-     * @return \Clicalmani\Routing\Segment[]
-     */
     public function getSegments() : array
     {
         /** @var \Clicalmani\Routing\Segment[] */
@@ -242,11 +192,6 @@ class Route extends \ArrayObject
         return $segments;
     }
 
-    /**
-     * Remove all optional segments
-     * 
-     * @return void
-     */
     public function makeRequired() : void
     {
         $options = [];
@@ -263,11 +208,6 @@ class Route extends \ArrayObject
         $this->uri = $this->uri();
     }
 
-    /**
-     * Get route parameters
-     * 
-     * @return \Clicalmani\Routing\Segment[]
-     */
     public function getParameters() : array
     {
         /** @var \Clicalmani\Routing\Segment[] */
@@ -281,33 +221,16 @@ class Route extends \ArrayObject
         return $params;
     }
 
-    /**
-     * Add a new middleware
-     * 
-     * @param mixed $name_or_class
-     * @return void
-     */
     public function addMiddleware(mixed $name_or_class) : void
     {
         if ( !in_array($name_or_class, $this->middlewares) ) $this->middlewares[] = $name_or_class;
     }
 
-    /**
-     * Remove a middleware
-     * 
-     * @param mixed $name_or_class
-     * @return void
-     */
     public function excludeMiddleware(mixed $name_or_class) : void
     {
         if ( !in_array($name_or_class, $this->excluded_middlewares) ) $this->excluded_middlewares[] = $name_or_class;
     }
 
-    /**
-     * Get route middlewares
-     * 
-     * @return array
-     */
     public function getMiddlewares() : array
     {
         if (\Clicalmani\Foundation\Routing\Route::isApi()) {
@@ -319,11 +242,6 @@ class Route extends \ArrayObject
         return array_unique(array_diff(array_merge($this->middlewares, $globals), $this->excluded_middlewares));
     }
 
-    /**
-     * Verfify if route is authorized
-     * 
-     * @return int|bool
-     */
     public function isAuthorized(?RequestInterface $request = null) : int|bool
     {
         if (!$this->getMiddlewares()) return 200; // Authorized
@@ -361,11 +279,6 @@ class Route extends \ArrayObject
         return 200; // Authorized
     }
 
-    /**
-     * Verify for an existing named route with the same name.
-     * 
-     * @return bool
-     */
     public function isDoubled() : bool
     {
         $count = 0;
@@ -378,11 +291,6 @@ class Route extends \ArrayObject
         return $count > 1;
     }
 
-    /**
-     * Before navigation hook
-     * 
-     * @return ?callable
-     */
     public function beforeHook(?callable $hook = null) : ?callable
     {
         if ($hook) {
@@ -393,11 +301,6 @@ class Route extends \ArrayObject
         return @ $this->hooks['before'];
     }
 
-    /**
-     * After navigation hook
-     * 
-     * @return ?callable
-     */
     public function afterHook(?callable $hook = null) : ?callable
     {
         if ($hook) {
@@ -408,12 +311,6 @@ class Route extends \ArrayObject
         return @ $this->hooks['after'];
     }
 
-    /**
-     * Missing callback
-     * 
-     * @param ?callable $callback
-     * @return mixed
-     */
     public function missing(?callable $callback = null) : mixed
     {
         if (NULL === $callback) return @$this->resources['missing'];
@@ -421,12 +318,6 @@ class Route extends \ArrayObject
         return $this->resources['missing'] = $callback;
     }
 
-    /**
-     * Order route result
-     * 
-     * @param ?string $orderBy
-     * @return mixed
-     */
     public function orderResultBy(?string $orderBy = null) : mixed
     {
         if (NULL === $orderBy) return @$this->resources['order_by'];
@@ -434,12 +325,6 @@ class Route extends \ArrayObject
         return $this->resources['order_by'] = $orderBy;
     }
 
-    /**
-     * Distinct result
-     * 
-     * @param ?bool $distinct
-     * @return mixed
-     */
     public function distinctResult(?bool $distinct = null) : mixed
     {
         if (NULL === $distinct) return @$this->resources['distinct'];
@@ -447,13 +332,6 @@ class Route extends \ArrayObject
         return $this->resources['distinct'] = $distinct;
     }
 
-    /**
-     * Limit result set
-     * 
-     * @param int $offset
-     * @param int $row_count
-     * @return mixed
-     */
     public function limitResult(int $offset = 0, int $row_count = 0) : mixed
     {
         if (0 === $row_count) return @$this->resources['limit'];
@@ -466,12 +344,6 @@ class Route extends \ArrayObject
         return null;
     }
 
-    /**
-     * Enable SQL CALC_FOUND_ROWS on the request query.
-     * 
-     * @param ?bool $calc
-     * @return mixed
-     */
     public function calcFoundRows(?bool $calc = null) : mixed
     {
         if (NULL === $calc) return @$this->resources['calc'];
@@ -479,13 +351,6 @@ class Route extends \ArrayObject
         return $this->resources['calc'] = $calc;
     }
 
-    /**
-     * Specify the table to delete from when deleting from
-     * multiple tables.
-     * 
-     * @param ?string $table
-     * @return mixed
-     */
     public function deleteFrom(?string $table = null) : mixed
     {
         if (NULL === $table) return @$this->resources['from'];
@@ -493,12 +358,6 @@ class Route extends \ArrayObject
         return $this->resources['from'] = $table;
     }
 
-    /**
-     * Ignore primary key duplic warning
-     * 
-     * @param ?bool $ignore
-     * @return mixed
-     */
     public function ignoreKeyWarning(?bool $ignore = null) : mixed
     {
         if (NULL === $ignore) return @$this->resources['ignore'];
@@ -506,12 +365,6 @@ class Route extends \ArrayObject
         return $this->resources['ignore'] = $ignore;
     }
 
-    /**
-     * Scope a resource route.
-     * 
-     * @param array $scope
-     * @return mixed
-     */
     public function scoped(array $scope = []) : mixed
     {
         if (empty($scope)) return @$this->resources['scoped'];
@@ -519,33 +372,16 @@ class Route extends \ArrayObject
         return $this->resources['scoped'] = $scope;
     }
 
-    /**
-     * Check custom route
-     * 
-     * @return bool
-     */
     public function isCustom() : bool
     {
         return preg_match('/^(\{.*\})$/', trim(trim($this->uri), '/'));
     }
 
-    /**
-     * Check if route is named
-     * 
-     * @param string $name
-     * @return bool
-     */
     public function named(string $name) : bool
     {
         return !!preg_match("/^$name$/", $this->name);
     }
 
-    /**
-     * Check if the route matches the given URI.
-     * 
-     * @param string $uri
-     * @return bool
-     */
     public function is(string $uri) : bool
     {
         return !!preg_match("/&$uri$/", $this->uri);
