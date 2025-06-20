@@ -5,7 +5,7 @@
     "require": {
         "php": ">=8.0"
     },
-    "license": "proprietary",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Clicalmani\\Routing\\": "src/"
