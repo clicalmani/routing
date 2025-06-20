@@ -233,7 +233,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface
 
     public function getMiddlewares() : array
     {
-        if (\Clicalmani\Foundation\Routing\Route::isApi()) {
+        if (\Clicalmani\Foundation\Support\Facades\Route::isApi()) {
             $globals = \Clicalmani\Foundation\Http\Middlewares\Api::getGlobals();
         } else {
             $globals = \Clicalmani\Foundation\Http\Middlewares\Web::getGlobals();
@@ -247,7 +247,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface
         if (!$this->getMiddlewares()) return 200; // Authorized
         
         foreach ($this->getMiddlewares() as $name_or_class) {
-            if ($middleware = ServiceProvider::getProvidedMiddleware(\Clicalmani\Foundation\Routing\Route::gateway(), $name_or_class)) ;
+            if ($middleware = ServiceProvider::getProvidedMiddleware(\Clicalmani\Foundation\Support\Facades\Route::gateway(), $name_or_class)) ;
             else $middleware = $name_or_class;
             
             if ( $middleware ) {
@@ -438,7 +438,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface
                     $this->action = '__invoke';
                 }
                 
-                if ($group = Memory::currentGroup() AND \Clicalmani\Foundation\Routing\Route::getClientVerb() === $this->verb) {
+                if ($group = Memory::currentGroup() AND \Clicalmani\Foundation\Support\Facades\Route::getClientVerb() === $this->verb) {
                     $group->addRoute($this);
                 }
             break;

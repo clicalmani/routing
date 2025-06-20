@@ -89,7 +89,7 @@ class Group implements Factory\GroupInterface
     public function prefix(string $prefix) : self
     {
         if ($prefix === \Clicalmani\Foundation\Support\Facades\Config::route('api_prefix')) 
-            $this->routes = Memory::getRoutesByVerb(\Clicalmani\Foundation\Routing\Route::getClientVerb());
+            $this->routes = Memory::getRoutesByVerb(\Clicalmani\Foundation\Support\Facades\Route::getClientVerb());
 
         foreach ($this->routes as $route) {
             $new_segment = new Segment;
