@@ -9,7 +9,7 @@ use Clicalmani\Validation\Validator;
  * @package clicalmani/routing 
  * @author @clicalmani
  */
-class SegmentValidator extends Validator implements Factory\RouteSegmentValidatorInterface
+class SegmentValidator implements Factory\RouteSegmentValidatorInterface
 {
     /**
      * Parameter to be validated
@@ -20,8 +20,6 @@ class SegmentValidator extends Validator implements Factory\RouteSegmentValidato
 
     public function __construct(private string $name, string $uri)
     {
-        parent::__construct(true);
-        
         $this->uris = [
             $name => $uri
         ];
@@ -30,7 +28,7 @@ class SegmentValidator extends Validator implements Factory\RouteSegmentValidato
     public function test(string &$value) : bool
     {
         $input[$this->name] = $value;
-        if ($valid = parent::sanitize($input, $this->uris)) {
+        if ($valid = (new Validator(Validator::ERROR_SILENCE))->sanitize($input, $this->uris)) {
             $value = $input[$this->name];
         }
         
