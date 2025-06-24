@@ -70,6 +70,24 @@ interface ValidatorInterface
     public function wherePattern(string|array $params, string $pattern) : self;
 
     /**
+     * Validate parameter's value against a model.
+     *
+     * @param string|array $params
+     * @param string $model A model class name or alias
+     * @return self
+     */
+    public function whereModel(string|array $params, string $model) : self;
+
+    /**
+     *  Validate parameter's value against a list of values.
+     * 
+     *  @param string|array $params
+     *  @param array $list A list of values to validate against
+     *  @return self
+     */
+    public function whereIn(string|array $params, array $list) : self;
+
+    /**
      * Add a before navigation hook. The callback function is passed the current param value and returns a boolean value.
      * If the callback function returns false, the navigation will be canceled.
      * 

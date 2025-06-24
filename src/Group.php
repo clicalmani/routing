@@ -1,6 +1,8 @@
 <?php 
 namespace Clicalmani\Routing;
 
+use Clicalmani\Routing\Factory\GroupInterface;
+
 /**
  * Group Class
  * 
@@ -9,6 +11,8 @@ namespace Clicalmani\Routing;
  */
 class Group implements Factory\GroupInterface
 {
+    use ValidationRules;
+    
     /**
      * Terminate grouping
      * 

@@ -2,7 +2,7 @@
 namespace Clicalmani\Routing;
 
 use Clicalmani\Foundation\Http\Request;
-use Clicalmani\Foundation\Http\Requests\RequestInterface;
+use Clicalmani\Foundation\Http\RequestInterface;
 use Clicalmani\Foundation\Providers\ServiceProvider;
 use Clicalmani\Foundation\Support\Facades\Config;
 

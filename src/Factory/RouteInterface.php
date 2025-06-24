@@ -120,7 +120,7 @@ interface RouteInterface
      * 
      * @return int|bool
      */
-    public function isAuthorized(?\Clicalmani\Foundation\Http\Requests\RequestInterface $request = null) : int|bool;
+    public function isAuthorized(?\Clicalmani\Foundation\Http\RequestInterface $request = null) : int|bool;
 
     /**
      * Verify for an existing named route with the same name.

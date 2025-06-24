@@ -9,6 +9,8 @@ namespace Clicalmani\Routing;
  */
 class Validator implements Factory\ValidatorInterface
 {
+    use ValidationRules;
+    
     /**
      * Controller
      * 
@@ -69,51 +71,6 @@ class Validator implements Factory\ValidatorInterface
         }
     }
 
-    public function whereNumber(string|array $params) : self
-    {
-        $params = (array)$params;
-
-        foreach ($params as $param) $this->revalidateParam($param, 'numeric');
-        
-        return $this;
-    }
-
-    public function whereInt(string|array $params) : self
-    {
-        $params = (array)$params;
-
-        foreach ($params as $param) $this->revalidateParam($param, 'int');
-        
-        return $this;
-    }
-
-    public function whereFloat(string|array $params) : self
-    {
-        $params = (array)$params;
-
-        foreach ($params as $param) $this->revalidateParam($param, 'float');
-        
-        return $this;
-    }
-
-    public function whereEnum(string|array $params, array $list = []) : self
-    {
-        $params = (array)$params;
-
-        foreach ($params as $param) $this->revalidateParam($param, 'enum|list:' . join(',', $list));
-        
-        return $this;
-    }
-
-    public function whereToken(string|array $params) : self
-    {
-        $params = (array)$params;
-
-        foreach ($params as $param) $this->revalidateParam($param, 'token');
-        
-        return $this;
-    }
-
     public function where(string|array $params, string $uri) : self
     {
         $params = (array)$params;
@@ -122,25 +79,6 @@ class Validator implements Factory\ValidatorInterface
         
         return $this;
     }
-
-    public function wherePattern(string|array $params, string $pattern) : self
-    {
-        $params = (array)$params;
-
-        foreach ($params as $param) $this->revalidateParam($param, 'regexp|pattern:' . $pattern);
-        
-        return $this;
-    }
-
-    public function guardAgainst(string $param, callable $callback) : self
-    {
-        $uid = uniqid('gard-');
-        
-        Memory::addGuard($uid, $param, $callback);
-        $this->revalidateParam($param, 'nguard|uid:' . $uid);
-
-        return $this;
-    } 
 
     public function middleware(string|array $name_or_class) : self
     {
