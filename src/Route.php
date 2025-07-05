@@ -2,7 +2,6 @@
 namespace Clicalmani\Routing;
 
 use Clicalmani\Foundation\Http\Request;
-use Clicalmani\Foundation\Http\RequestInterface;
 use Clicalmani\Foundation\Providers\ServiceProvider;
 use Clicalmani\Foundation\Support\Facades\Config;
 
@@ -242,7 +241,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface
         return array_unique(array_diff(array_merge($this->middlewares, $globals), $this->excluded_middlewares));
     }
 
-    public function isAuthorized(?RequestInterface $request = null) : int|bool
+    public function isAuthorized(?\Clicalmani\Foundation\Http\RequestInterface $request = null) : int|bool
     {
         if (!$this->getMiddlewares()) return 200; // Authorized
         
