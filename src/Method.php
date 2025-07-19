@@ -91,7 +91,7 @@ trait Method
     public function resource(string $resource, string $controller) : Resource
     {
         return $this->__createResource($resource, $controller, [
-            'get'    => ['index' => '{?id}/{nested}', 'create' => '{id}/{nested}/create', 'show' => '{id}/{nested}/{nid}', 'edit' => '{id}/{nested}/{nid}/edit'],
+            'get'    => ['index' => '{id}/{nested}', 'create' => '{id}/{nested}/create', 'show' => '{id}/{nested}/{nid}', 'edit' => '{id}/{nested}/{nid}/edit'],
             'post'   => ['store' => '{id}/{nested}'],
             'put'    => ['update' => '{id}/{nested}/{nid}'],
             'patch'  => ['update' => '{id}/{nested}/{nid}'],
@@ -113,18 +113,18 @@ trait Method
     public function singleton(string $resource, string $controller) : Resource
     {
         return $this->__createResource($resource, $controller, [
-            'get'    => ['show' => '{?id}/{nested}', 'edit' => '{?id}/{nested}/edit'],
-            'put'    => ['update' => '{?id}/{nested}'],
-            'patch'  => ['update' => '{?id}/{nested}']
+            'get'    => ['show' => '{id}/{nested}/{nid}', 'edit' => '{id}/{nested}/{nid}/edit'],
+            'put'    => ['update' => '{id}/{nested}/{nid}'],
+            'patch'  => ['update' => '{id}/{nested}/{nid}']
         ]);
     }
 
     public function apiSingleton(string $resource, string $controller) : Resource
     {
         return $this->__createResource($resource, $controller, [
-            'get'    => ['show' => '{?id}/{nested}'],
-            'put'    => ['update' => '{?id}/{nested}'],
-            'patch'  => ['update' => '{?id}/{nested}'],
+            'get'    => ['show' => '{id}/{nested}/{nid}'],
+            'put'    => ['update' => '{id}/{nested}/{nid}'],
+            'patch'  => ['update' => '{id}/{nested}/{nid}'],
         ]);
     }
 
