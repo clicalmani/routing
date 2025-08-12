@@ -1,6 +1,6 @@
 # Tonka Routing Package
 
-![Tonka Logo](https://example.com/logo.png)
+![Tonka Logo](https://clicalmani.github.io/tonka/logo-dark.png)
 
 ## Overview
 
