@@ -377,6 +377,16 @@ class Route extends \ArrayObject implements Factory\RouteInterface
         return preg_match('/^(\{.*\})$/', trim(trim($this->uri), '/'));
     }
 
+    public function isDirty() : bool
+    {
+        return !is_null($this->redirect);
+    }
+
+    public function isGettable() : bool
+    {
+        return strtolower($this->verb) === 'get';
+    }
+
     public function named(string $name) : bool
     {
         return !!preg_match("/^$name$/", $this->name);
@@ -385,6 +395,11 @@ class Route extends \ArrayObject implements Factory\RouteInterface
     public function is(string $uri) : bool
     {
         return !!preg_match("/&$uri$/", $this->uri);
+    }
+
+    public function backTrace() 
+    {
+        session()->storeBackTrace($this->uri());
     }
 
     public function __get(string $name)

@@ -217,6 +217,20 @@ interface RouteInterface
     public function isCustom() : bool;
 
     /**
+     * Is dirty
+     * 
+     * @return bool
+     */
+    public function isDirty() : bool;
+
+    /**
+     * Is gettable
+     * 
+     * @return bool
+     */
+    public function isGettable() : bool;
+
+    /**
      * Check if route is named
      * 
      * @param string $name
