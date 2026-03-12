@@ -5,6 +5,7 @@ use Clicalmani\Foundation\Http\Request;
 use Clicalmani\Foundation\Http\RequestInterface;
 use Clicalmani\Foundation\Providers\ServiceProvider;
 use Clicalmani\Foundation\Support\Facades\Config;
+use JsonSerializable;
 
 /**
  * Route Class
@@ -12,7 +13,7 @@ use Clicalmani\Foundation\Support\Facades\Config;
  * @package clicalmani/routing 
  * @author @clicalmani
  */
-class Route extends \ArrayObject implements Factory\RouteInterface
+class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializable
 {
     /**
      * Route uri
@@ -238,7 +239,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface
         } else {
             $globals = \Clicalmani\Foundation\Http\Middlewares\Web::getGlobals();
         }
-
+        
         return array_unique(array_diff(array_merge($this->middlewares, $globals), $this->excluded_middlewares));
     }
 
@@ -473,5 +474,14 @@ class Route extends \ArrayObject implements Factory\RouteInterface
     public function __toString()
     {
         return $this->uri();
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return [
+            'uri' => $this->uri,
+            'paremeters' => array_map(fn(Segment $segment) => $segment->name, $this->getParameters()),
+            'methods' => [$this->verb]
+        ];
     }
 }

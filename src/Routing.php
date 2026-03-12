@@ -324,7 +324,7 @@ class Routing implements Factory\RoutingInterface
                     $routines[] = $this->register($method, $this->__parseResourceUri($resource, $uri), [$controller, $action]);
                 }
             }
-        }) )->prefix(explode('.', $resource)[0]);
+        }) );
 
         return $routines;
     }
@@ -339,8 +339,10 @@ class Routing implements Factory\RoutingInterface
     private function __parseResourceUri(string $resource, string $uri) : string
     {
         $arr = explode('.', $resource);
-        $nested = @$arr[1] ?? '';
+        [$main, $nested] = [array_shift($arr), @$arr[0] ?? ''];
 
+        $uri = str_replace('{resource}', $main, $uri);
+        
         $route_parameter_prefix = \Clicalmani\Foundation\Support\Facades\Config::route('parameter_prefix');
 
         $bindings = [

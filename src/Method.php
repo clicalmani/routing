@@ -91,22 +91,22 @@ trait Method
     public function resource(string $resource, string $controller) : Resource
     {
         return $this->__createResource($resource, $controller, [
-            'get'    => ['index' => '{id}/{nested}', 'create' => '{id}/{nested}/create', 'show' => '{id}/{nested}/{nid}', 'edit' => '{id}/{nested}/{nid}/edit'],
-            'post'   => ['store' => '{id}/{nested}'],
-            'put'    => ['update' => '{id}/{nested}/{nid}'],
-            'patch'  => ['update' => '{id}/{nested}/{nid}'],
-            'delete' => ['destroy' => '{id}/{nested}/{nid}']
+            'get'    => ['index' => '{resource}/{?id}/{nested}', 'create' => '{resource}/{?id}/{nested}/create', 'show' => '{resource}/{id}/{nested}/{nid}', 'edit' => '{resource}/{id}/{nested}/{nid}/edit'],
+            'post'   => ['store' => '{resource}/{?id}/{nested}'],
+            'put'    => ['update' => '{resource}/{id}/{nested}/{nid}'],
+            'patch'  => ['update' => '{resource}/{id}/{nested}/{nid}'],
+            'delete' => ['destroy' => '{resource}/{id}/{nested}/{nid}']
         ]);
     }
 
     public function apiResource(string $resource, string $controller) : Resource
     {
         return $this->__createResource($resource, $controller, [
-            'get'    => ['index' => '{?id}/{nested}', 'show' => '{id}/{nested}/{nid}'],
-            'post'   => ['store' => '{?id}/{nested}'],
-            'put'    => ['update' => '{id}/{nested}/{nid}'],
-            'patch'  => ['update' => '{id}/{nested}/{nid}'],
-            'delete' => ['destroy' => '{id}/{nested}/{nid}']
+            'get'    => ['index' => '{resource}/{?id}/{nested}', 'show' => '{resource}/{id}/{nested}/{nid}'],
+            'post'   => ['store' => '{resource}/{?id}/{nested}'],
+            'put'    => ['update' => '{resource}/{id}/{nested}/{nid}'],
+            'patch'  => ['update' => '{resource}/{id}/{nested}/{nid}'],
+            'delete' => ['destroy' => '{resource}/{id}/{nested}/{nid}']
         ]);
     }
 
