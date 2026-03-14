@@ -110,6 +110,13 @@ interface RouteInterface
     public function getUrl() : string;
 
     /**
+     * Check if route is resourceful
+     * 
+     * @return bool
+     */
+    public function isResourceful() : bool;
+
+    /**
      * Remove all optional segments
      * 
      * @return void

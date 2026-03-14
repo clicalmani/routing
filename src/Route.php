@@ -436,6 +436,11 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
 
         return $url;
     }
+    
+    public function isResourceful() : bool
+    {
+        return isset($this->resources['main']);
+    }
 
     public function __get(string $name)
     {
@@ -445,6 +450,8 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
             'verb' => $this->verb,
             'name' => $this->name,
             'redirect' => $this->redirect,
+            'main_resource' => $this->resources['main'] ?? null,
+            'nested_resource' => $this->resources['nested'] ?? null,
         };
     }
 
@@ -455,6 +462,8 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
             case 'verb': $this->verb = $value; break;
             case 'name': $this->name = $value; break;
             case 'redirect': $this->redirect = $value; break;
+            case 'main_resource': $this->resources['main'] = $value; break;
+            case 'nested_resource': $this->resources['nested'] = $value; break;
             case 'action': 
 
                 /**

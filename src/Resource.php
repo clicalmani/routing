@@ -11,7 +11,22 @@ use Clicalmani\Foundation\Collection\Collection;
  */
 class Resource extends \ArrayObject implements Factory\RouteResourceInterface
 {
-    public function __construct(private ?Collection $storage = new Collection) {}
+    public function __construct(private ?string $name = null, private ?Collection $storage = new Collection) {}
+
+    /**
+     * Get user provided resource name.
+     * 
+     * @return string|null
+     */
+    public function getUserResource() : array
+    {
+        if ( ! $this->name ) return ['main' => null, 'nested' => null];
+
+        $arr = explode('.', $this->name);
+        [$main, $nested] = [array_shift($arr), @$arr[0] ?? ''];
+
+        return ['main' => $main, 'nested' => $nested];
+    }
 
     /**
 	 * (non-PHPdoc)
@@ -19,11 +34,19 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
 	 */
 	public function offsetSet(mixed $index, mixed $value) : void
 	{
+        $user_resource = $this->getUserResource();
+
         if (get_class($value) === \Clicalmani\Routing\Validator::class) {
-            $this->storage->add($value->route);
+            /** @var \Clicalmani\Routing\Route */
+            $route = $value->route;
+            $route->main_resource = $user_resource['main'];
+            $route->nested_resource = $user_resource['nested'];
+            $this->storage->add($route);
         } elseif (get_class($value) === \Clicalmani\Routing\Group::class) {
             /** @var \Clicalmani\Routing\Route */
             foreach ($value->routes as $route) {
+                $route->main_resource = $user_resource['main'];
+                $route->nested_resource = $user_resource['nested'];
                 $this->storage->add($route);
             }
         }

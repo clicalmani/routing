@@ -3,6 +3,7 @@ namespace Clicalmani\Routing;
 
 use Clicalmani\Foundation\Providers\ServiceProvider;
 use Clicalmani\Foundation\Support\Facades\Config;
+use Clicalmani\Foundation\Support\Facades\Str;
 
 /**
  * Routing Class
@@ -334,7 +335,7 @@ class Routing implements Factory\RoutingInterface
      */
     private function __createResource(string $resource, string $controller, array $routes) : Resource
     {
-        $routines = new Resource;
+        $routines = new Resource($resource);
 
         ( new Group(function() use($resource, $routes, $routines, $controller) {
             foreach ($routes as $verb => $segs) {
@@ -364,10 +365,10 @@ class Routing implements Factory\RoutingInterface
         $route_parameter_prefix = \Clicalmani\Foundation\Support\Facades\Config::route('parameter_prefix');
 
         $bindings = [
-            '{id}' => $route_parameter_prefix.'id',
-            '{?id}' => !empty($nested) ? '?' . $route_parameter_prefix.'id': '',
+            '{id}' => $route_parameter_prefix . Str::singularize($main),
+            '{?id}' => !empty($nested) ? '?' . $route_parameter_prefix . Str::singularize($main): '',
             '{nested}' => $nested,
-            '{nid}' => !empty($nested) ? $route_parameter_prefix.'nid': ''
+            '{nid}' => !empty($nested) ? $route_parameter_prefix . Str::singularize($nested): ''
         ];
 
         foreach ($bindings as $key => $value) {
@@ -385,7 +386,7 @@ class Routing implements Factory\RoutingInterface
          * @var string
          */
         $name = array_shift($params);
-        $is_assoc = is_array($params[0]);
+        $is_assoc = is_array(@$params[0]);
         
         if ($route = $this->findByName($name)) {
             /** @var \Clicalmani\Routing\Segment */
