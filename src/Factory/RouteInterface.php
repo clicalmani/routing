@@ -23,7 +23,24 @@ interface RouteInterface
      * 
      * @return void
      */
-    public function resetUri() : void;
+    public function refreshUri() : void;
+
+    /**
+     * Add a new segment at the specified index.
+     * 
+     * @param int $index
+     * @param \Clicalmani\Routing\Segment $new_segment
+     * @return void
+     */
+    public function addSegmentAt(int $index, \Clicalmani\Routing\Segment $new_segment) : void;
+
+    /**
+     * Append a new segment to the route.
+     * 
+     * @param \Clicalmani\Routing\Segment $new_segment
+     * @return void
+     */
+    public function appendSegment(\Clicalmani\Routing\Segment $new_segment) : void;
 
     /**
      * Remove route segment at the specified index.
@@ -48,6 +65,13 @@ interface RouteInterface
      * @return string[]
      */
     public function getSegmentsNames() : array;
+
+    /**
+     * Returns an array of route segments' values.
+     * 
+     * @return string[]
+     */
+    public function getSegmentsValues() : array;
 
     /**
      * Compare the given route to the current route.
@@ -77,6 +101,13 @@ interface RouteInterface
      * @return \Clicalmani\Routing\Segment[]
      */
     public function getSegments() : array;
+
+    /**
+     * Returns the URL for the route.
+     * 
+     * @return string
+     */
+    public function getUrl() : string;
 
     /**
      * Remove all optional segments

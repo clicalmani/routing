@@ -110,6 +110,20 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
         return $this;
     }
 
+    public function middlewares(string|array $action, string $name_or_class) : self
+    {
+        $actions = (array) $action;
+
+        /** @var \Clicalmani\Routing\Route */
+        foreach ($this->storage as $route) {
+            if (is_array($route->action) && in_array(@$route->action[1], $actions)) {
+                $route->addMiddleware($name_or_class);
+            }
+        }
+
+        return $this;
+    }
+
     public function only(string|array $action) : self
     {
         $action = (array) $action;
@@ -170,6 +184,26 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
         foreach ($this->storage as $route) {
             if (isset($custom_names[$route->action[1]])) {
                 $route->name = $custom_names[$route->action[1]];
+            }
+        }
+
+        return $this;
+    }
+
+    public function protect(array $actions, bool $prevent_tampering = true) : self
+    {
+        $hash_parameter = \Clicalmani\Foundation\Auth\EncryptionServiceProvider::hashParameter();
+
+        /** @var \Clicalmani\Routing\Route */
+        foreach ($this->storage as $route) {
+            if ($route->isGettable() && in_array($route->action[1], $actions, true)) {
+                $segment = new Segment;
+                $segment->name = ':' . $hash_parameter;
+                $route->appendSegment($segment);
+
+                if ($prevent_tampering && class_exists(\App\Http\Middlewares\PreventRouteTampering::class)) {
+                    $route->addMiddleware(\App\Http\Middlewares\PreventRouteTampering::class);
+                }
             }
         }
 

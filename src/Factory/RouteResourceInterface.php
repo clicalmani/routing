@@ -66,6 +66,15 @@ interface RouteResourceInterface
     public function middleware(string $name_or_class) : self;
 
     /**
+     * Apply middlewares to specific resource actions.
+     * 
+     * @param string|array $action
+     * @param string $name_or_class
+     * @return self
+     */
+    public function middlewares(string|array $action, string $name_or_class) : self;
+
+    /**
      * Filter the resource to only include specified actions.
      * 
      * @param string|array $action
@@ -103,4 +112,12 @@ interface RouteResourceInterface
      * @return self
      */
     public function names(array $custom_names) : self;
+
+    /**
+     * Protect specified resource actions with authentication middleware.
+     * 
+     * @param array $actions
+     * @return self
+     */
+    public function protect(array $actions) : self;
 }

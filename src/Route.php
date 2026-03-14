@@ -109,21 +109,39 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
         $this->uri = $new_uri;
     }
 
-    public function resetUri() : void
+    public function refreshUri() : void
     {
         $this->uri = $this->uri();
+    }
+
+    public function addSegmentAt(int $index, Segment $new_segment) : void
+    {
+        /** @var \Clicalmani\Routing\Segment[] */
+        $segments = $this->getSegments();
+
+        array_splice($segments, $index, 1, $new_segment);
+        
+        $this->exchangeArray($segments);
+        $this->refreshUri();
+    }
+
+    public function appendSegment(Segment $new_segment) : void
+    {
+        /** @var \Clicalmani\Routing\Segment[] */
+        $segments = $this->getSegments();
+        $segments[] = $new_segment;
+        $this->exchangeArray($segments);
+        $this->refreshUri();
     }
 
     public function removeSegmentAt(int $index, bool $preserve_keys = true) : void
     {
         unset($this[$index]);
-        $this->resetUri();
+        $this->refreshUri();
 
         if (FALSE === $preserve_keys) {
             /** @var \Clicalmani\Routing\Segment[] */
-            $segments = [];
-            /** @var \Clicalmani\Routing\Segment */
-            foreach ($this as $segment) $segments[] = $segment;
+            $segments = $this->getSegments();
             
             $this->exchangeArray($segments);
         }
@@ -136,14 +154,12 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
 
     public function getSegmentsNames() : array
     {
-        $ret = [];
-        
-        /** @var \Clicalmani\Routing\Segment */
-        foreach ($this as $segment) {
-            $ret[] = $segment->name;
-        }
+        return array_map(fn(Segment $segment) => $segment->name, $this->getSegments());
+    }
 
-        return $ret;
+    public function getSegmentsValues() : array
+    {
+        return array_map(fn(Segment $segment) => $segment->value, $this->getSegments());
     }
 
     public function equals(Route $route) : bool
@@ -401,6 +417,24 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
     public function backTrace() 
     {
         session()->storeBackTrace($this->uri());
+    }
+
+    public function getUrl() : string
+    {
+        $url = '';
+
+        /** 
+         * @var \Clicalmani\Routing\Segment 
+         */
+        foreach ($this as $segment) {
+            if ($segment->isParameter()) {
+                $url .= '/' . $segment->value;
+            } else {
+                $url .= '/' . $segment->name;
+            }
+        }
+
+        return $url;
     }
 
     public function __get(string $name)

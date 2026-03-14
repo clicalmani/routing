@@ -91,7 +91,7 @@ trait Method
     public function resource(string $resource, string $controller) : Resource
     {
         return $this->__createResource($resource, $controller, [
-            'get'    => ['index' => '{resource}/{?id}/{nested}', 'create' => '{resource}/{?id}/{nested}/create', 'show' => '{resource}/{id}/{nested}/{nid}', 'edit' => '{resource}/{id}/{nested}/{nid}/edit'],
+            'get'    => ['index' => "{resource}/{?id}/{nested}", 'create' => "{resource}/{?id}/{nested}/create", 'show' => "{resource}/{id}/{nested}/{nid}", 'edit' => "{resource}/{id}/{nested}/{nid}/edit"],
             'post'   => ['store' => '{resource}/{?id}/{nested}'],
             'put'    => ['update' => '{resource}/{id}/{nested}/{nid}'],
             'patch'  => ['update' => '{resource}/{id}/{nested}/{nid}'],

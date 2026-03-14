@@ -232,7 +232,6 @@ class Routing implements Factory\RoutingInterface
             $subgroup = new Group;
 
             $old_group->shareResourcesWith($subgroup);
-            $options = $route->getOptions();
             $route->makeRequired();
             
             if ($this->getClientVerb() === $verb && $old_group->controller) {
@@ -240,28 +239,47 @@ class Routing implements Factory\RoutingInterface
                 else $route->action = [$old_group->controller, $callback];
                 $old_group->addRoute($route); // Create a route without optional parameters
             }
+
+            $segments = $route->getSegments();
+            $optional_indices = [];
+
+            /** @var \Clicalmani\Routing\Segment */
+            foreach ($segments as $index => $segment) {
+                if ($segment->isOptional()) {
+                    $optional_indices[] = $index;
+                    $segment->makeRequired();
+                    $segments[$index] = $segment;
+                }
+            }
             
             $uri = $route->uri(); // Options should start from the current route uri.
             $uris = [];
-            
-            foreach ($options as $index => $segment) {
-                $segment->makeRequired();
-                $segment->setValidator(null);
-                /** @var string */
-                $name = $segment->name;
-                $uris[] = "$uri/$name";
-                $tmp = '';
-                for ($j = $index + 1; $j < count($options); $j++) {
-                    $oname = substr($options[$j]->name, 1);
-                    $name = "$name/$oname";
-                    $tmp .= "$name/$oname";
-                    $uris[] = "$uri/$name";
-                    $uris[] = "$uri/$tmp";
+            $count_optional = count($optional_indices);
+            $total_combinations = (1 << $count_optional); // 0 to (2^N) - 1
+
+            for ($i = 0; $i < $total_combinations; $i++) {
+                $current_route_segments = [];
+
+                /** @var \Clicalmani\Routing\Segment */
+                foreach ($segments as $index => $segment) {
+                    if ($segment->isOptional()) {
+                        $opt_pos = array_search($index, $optional_indices);
+
+                        if (($i & (1 << $opt_pos))) {
+                            $segment->makeRequired();
+                            $current_route_segments[] = $segment;
+                        }
+                    } else {
+                        $current_route_segments[] = $segment;
+                    }
                 }
-                $uris[] = "$uri/$name";
+
+                $uris[] = '/' . collection($current_route_segments)->map(fn(Segment $segment) => $segment->name)->join('/');
             }
             
-            $uris = array_unique($uris);
+            usort($uris, function($a, $b) {
+                return substr_count($b, ':') - substr_count($a, ':');
+            });
             
             foreach ($uris as $uri) 
                 $this->__register($uri, $verb, $callback, $bind, $old_group, $subgroup);
@@ -319,9 +337,9 @@ class Routing implements Factory\RoutingInterface
         $routines = new Resource;
 
         ( new Group(function() use($resource, $routes, $routines, $controller) {
-            foreach ($routes as $method => $segs) {
+            foreach ($routes as $verb => $segs) {
                 foreach ($segs as $action => $uri) {
-                    $routines[] = $this->register($method, $this->__parseResourceUri($resource, $uri), [$controller, $action]);
+                    $routines[] = $this->register($verb, $this->__parseResourceUri($resource, $uri), [$controller, $action]);
                 }
             }
         }) );
@@ -347,7 +365,7 @@ class Routing implements Factory\RoutingInterface
 
         $bindings = [
             '{id}' => $route_parameter_prefix.'id',
-            '{?id}' => !empty($nested) ? $route_parameter_prefix.'id': '',
+            '{?id}' => !empty($nested) ? '?' . $route_parameter_prefix.'id': '',
             '{nested}' => $nested,
             '{nid}' => !empty($nested) ? $route_parameter_prefix.'nid': ''
         ];
@@ -367,20 +385,20 @@ class Routing implements Factory\RoutingInterface
          * @var string
          */
         $name = array_shift($params);
+        $is_assoc = is_array($params[0]);
         
         if ($route = $this->findByName($name)) {
-
             /** @var \Clicalmani\Routing\Segment */
-            foreach ($route as $index => $segment) {
-                if ($segment->isParameter() && @$params[$index]) $segment->value = $params[$index];
+            foreach ($route as $segment) {
+                if ($segment->isParameter()) {
+                    $segment->value = $is_assoc ? @ $params[0][substr($segment->name, 1)]: array_shift($params);
+                }
             }
             
-            if ($arr = $route->getSegmentsNames()) return join('/', $arr);
-
-            return '/';
+            return $route->getUrl();
         }
 
-        return $name;
+        return null;
     }
 
     public function findByName(string $name) : ?\Clicalmani\Routing\Route
