@@ -116,8 +116,8 @@ interface RouteResourceInterface
     /**
      * Protect specified resource actions with authentication middleware.
      * 
-     * @param array $actions
+     * @param string|array $actions
      * @return self
      */
-    public function protect(array $actions) : self;
+    public function protect(string|array $actions) : self;
 }

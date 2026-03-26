@@ -523,7 +523,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
     {
         return [
             'uri' => $this->uri,
-            'paremeters' => array_map(fn(Segment $segment) => $segment->name, $this->getParameters()),
+            'parameters' => array_map(fn(Segment $segment) => substr($segment->name, 1), $this->getParameters()),
             'methods' => [$this->verb]
         ];
     }

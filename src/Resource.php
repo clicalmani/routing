@@ -23,7 +23,7 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
         if ( ! $this->name ) return ['main' => null, 'nested' => null];
 
         $arr = explode('.', $this->name);
-        [$main, $nested] = [array_shift($arr), @$arr[0] ?? ''];
+        [$main, $nested] = [array_shift($arr), isset($arr[0]) ? $arr[0]: ''];
 
         return ['main' => $main, 'nested' => $nested];
     }
@@ -213,8 +213,9 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
         return $this;
     }
 
-    public function protect(array $actions, bool $prevent_tampering = true) : self
+    public function protect(string|array $actions, bool $prevent_tampering = true) : self
     {
+        $actions = (array) $actions;
         $hash_parameter = \Clicalmani\Foundation\Auth\EncryptionServiceProvider::hashParameter();
 
         /** @var \Clicalmani\Routing\Route */

@@ -358,7 +358,7 @@ class Routing implements Factory\RoutingInterface
     private function __parseResourceUri(string $resource, string $uri) : string
     {
         $arr = explode('.', $resource);
-        [$main, $nested] = [array_shift($arr), @$arr[0] ?? ''];
+        [$main, $nested] = [array_shift($arr), (isset($arr[0]) ? $arr[0]: '')];
 
         $uri = str_replace('{resource}', $main, $uri);
         
