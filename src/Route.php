@@ -497,7 +497,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
                     $this->action = '__invoke';
                 }
                 
-                if ($group = Memory::currentGroup() AND \Clicalmani\Foundation\Support\Facades\Route::getClientVerb() === $this->verb) {
+                if ($group = Memory::currentGroup()) {
                     $group->addRoute($this);
                 }
             break;

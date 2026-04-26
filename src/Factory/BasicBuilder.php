@@ -43,7 +43,7 @@ class BasicBuilder extends Builder implements \Clicalmani\Routing\BuilderInterfa
         $candidates = [];
         
         // Gauge
-        $len = count( $this->create( client_uri() ) );
+        $len = count( $this->create( client_url() ) );
         
         /** @var \Clicalmani\Routing\Route $route */
         foreach (Memory::getRoutesByVerb($verb) as $route) {

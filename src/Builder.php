@@ -49,7 +49,7 @@ abstract class Builder
          * 
          * @var \Clicalmani\Routing\Route
          */
-        return $this->create( client_uri() );
+        return $this->create( client_url() );
     }
 
     /**

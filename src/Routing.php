@@ -33,7 +33,7 @@ class Routing implements Factory\RoutingInterface
         
         return preg_match(
             "/^\/$api/", 
-            client_uri()
+            client_url()
         );
     }
 
@@ -300,7 +300,8 @@ class Routing implements Factory\RoutingInterface
         $validator = new Validator($route);
 
         if (TRUE === $bind) $validator->bind();
-
+        
+        // Register route
         if (Memory::isRecording()) Memory::record($route);
         
         return $validator;
