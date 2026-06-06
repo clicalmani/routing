@@ -219,6 +219,8 @@ class Routing implements Factory\RoutingInterface
          * to match route requirements.
          */
         if ( $route->seemsOptional() ) {
+
+            $segments = $route->getSegments();
             
             /** @var \Clicalmani\Routing\Group */
             $old_group = Memory::currentGroup();
@@ -241,9 +243,8 @@ class Routing implements Factory\RoutingInterface
                 $old_group->addRoute($route); // Create a route without optional parameters
             }
 
-            $segments = $route->getSegments();
             $optional_indices = [];
-
+            
             /** @var \Clicalmani\Routing\Segment */
             foreach ($segments as $index => $segment) {
                 if ($segment->isOptional()) {
@@ -257,7 +258,7 @@ class Routing implements Factory\RoutingInterface
             $uris = [];
             $count_optional = count($optional_indices);
             $total_combinations = (1 << $count_optional); // 0 to (2^N) - 1
-
+            
             for ($i = 0; $i < $total_combinations; $i++) {
                 $current_route_segments = [];
 
@@ -278,6 +279,7 @@ class Routing implements Factory\RoutingInterface
                 $uris[] = '/' . collection($current_route_segments)->map(fn(Segment $segment) => $segment->name)->join('/');
             }
             
+            $uris = array_unique($uris);
             usort($uris, function($a, $b) {
                 return substr_count($b, ':') - substr_count($a, ':');
             });

@@ -202,7 +202,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
     {
         /** @var \Clicalmani\Routing\Segment[] */
         $segments = [];
-
+        
         /** @var \Clicalmani\Routing\Segment */
         foreach ($this as $segment) $segments[] = $segment;
 
@@ -522,8 +522,8 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
     public function jsonSerialize(): mixed
     {
         return [
-            'uri' => $this->uri,
-            'parameters' => array_map(fn(Segment $segment) => substr($segment->name, 1), $this->getParameters()),
+            'uri' => '/' . $this->uri,
+            'parameters' => array_map(fn(Segment $segment) => preg_replace("/^\??" . Config::route('parameter_prefix') . "/", '', $segment->name), $this->getParameters()),
             'methods' => [$this->verb]
         ];
     }

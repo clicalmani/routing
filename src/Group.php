@@ -207,6 +207,14 @@ class Group implements Factory\GroupInterface
         if ($this->middleware) $sub->middleware = $this->middleware;
     }
 
+    public function name(string $name)
+    {
+        /** @var \Clicalmani\Routing\Route */
+        foreach ($this->routes as $route) {
+            $route->name = $name;
+        }
+    }
+
     /**
      * (non-PHPDoc)
      * @overriden
