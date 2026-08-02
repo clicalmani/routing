@@ -50,11 +50,11 @@ interface RoutingInterface
     /**
      * Set a global validation constraint.
      * 
-     * @param string $param Parameter name.
-     * @param string $constraint A validation constraint.
+     * @param string|array $param Parameter(s) name(s).
+     * @param string|array $constraint A validation constraint.
      * @return void
      */
-    public function validate(string $param, string $constraint): void;
+    public function validate(string|array $param, string|array $constraint): void;
 
     /**
      * Is grouping

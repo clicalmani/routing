@@ -120,4 +120,12 @@ interface RouteResourceInterface
      * @return self
      */
     public function protect(string|array $actions) : self;
+
+    /**
+     * Set a name for the resource.
+     * 
+     * @param string $name
+     * @return void
+     */
+    public function name(string $name) : void;
 }

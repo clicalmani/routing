@@ -110,9 +110,14 @@ class Memory implements Factory\RouteMemoryInterface
         static::$patterns[$param] = $pattern;
     }
 
-    public static function registerConstraint(string $param, string $constraint) : void
+    public static function registerConstraint(string|array $param, string|array $constraint) : void
     {
-        static::$patterns[$param] = $constraint;
+        if ( is_string($param) ) {
+            $param = [$param];
+            $constraint = [$constraint];
+        }
+        
+        foreach ($param as $i => $p) static::$patterns[$p] = $constraint[$i];
     }
 
     public static function getGlobalPatterns() : array

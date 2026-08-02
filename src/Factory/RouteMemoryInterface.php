@@ -54,11 +54,11 @@ interface RouteMemoryInterface
     /**
      * Register a global validation constraint.
      * 
-     * @param string $param Parameter name
-     * @param string $constraint A validation constraint.
+     * @param string|array $param Parameter name
+     * @param string|array $constraint(s) A validation constraint.
      * @return void
      */
-    public static function registerConstraint(string $param, string $constraint) : void;
+    public static function registerConstraint(string|array $param, string|array $constraint) : void;
 
     /**
      * Get global patterns

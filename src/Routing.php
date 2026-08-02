@@ -156,7 +156,7 @@ class Routing implements Factory\RoutingInterface
         Memory::registerPattern($param, $pattern);
     }
 
-    public function validate(string $param, string $constraint): void
+    public function validate(string|array $param, string|array $constraint): void
     {
         Memory::registerConstraint($param, $constraint);
     }

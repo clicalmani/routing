@@ -233,4 +233,12 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
 
         return $this;
     }
+    
+    public function name(string $name) : void
+    {
+        /** @var \Clicalmani\Routing\Route */
+        foreach ($this->storage as $route) {
+            $route->name = $name;
+        }
+    }
 }
