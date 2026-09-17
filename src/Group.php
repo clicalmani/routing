@@ -90,8 +90,8 @@ class Group implements Factory\GroupInterface
 
     public function prefix(string $prefix) : self
     {
-        if ($prefix === \Clicalmani\Foundation\Support\Facades\Config::route('api_prefix')) {
-            $this->routes = Memory::getRoutesByVerb(\Clicalmani\Foundation\Support\Facades\Route::getClientVerb());
+        if ($prefix === \Clicalmani\Core\Support\Facades\Config::route('api_prefix')) {
+            $this->routes = Memory::getRoutesByVerb(\Clicalmani\Core\Support\Facades\Route::getClientVerb());
         }
 
         foreach ($this->routes as $route) {
@@ -113,11 +113,11 @@ class Group implements Factory\GroupInterface
         $name_or_class = (array) $name_or_class;
 
         if ( in_array('web', $name_or_class) ) {
-            $name_or_class = array_merge($name_or_class, \Clicalmani\Foundation\Http\Middlewares\Web::getGlobals());
+            $name_or_class = array_merge($name_or_class, \Clicalmani\Core\Http\Middlewares\Web::getGlobals());
         }
 
         if ( in_array('api', $name_or_class) ) {
-            $name_or_class = array_merge($name_or_class, \Clicalmani\Foundation\Http\Middlewares\Api::getGlobals());
+            $name_or_class = array_merge($name_or_class, \Clicalmani\Core\Http\Middlewares\Api::getGlobals());
         }
         
         /** @var \Clicalmani\Routing\Route $route */

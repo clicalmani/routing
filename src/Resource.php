@@ -1,7 +1,7 @@
 <?php
 namespace Clicalmani\Routing;
 
-use Clicalmani\Foundation\Collection\Collection;
+use Clicalmani\Core\Collection\Collection;
 
 /**
  * Resource Class
@@ -191,7 +191,7 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
             /** @var \Clicalmani\Routing\Segment $segment */
             foreach ($route as $index => $segment) {
                 if (!in_array(@$route->action[1], ['index', 'create', 'store']) &&
-                        $segment->name === \Clicalmani\Foundation\Support\Facades\Config::route('parameter_prefix').'id') {
+                        $segment->name === \Clicalmani\Core\Support\Facades\Config::route('parameter_prefix').'id') {
                     $route->removeSegmentAt($index, false);
                     $route->removeSegmentAt($index - 1, false);
                 } 
@@ -216,7 +216,7 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
     public function protect(string|array $actions, bool $prevent_tampering = true) : self
     {
         $actions = (array) $actions;
-        $hash_parameter = \Clicalmani\Foundation\Auth\EncryptionServiceProvider::hashParameter();
+        $hash_parameter = \Clicalmani\Core\Auth\EncryptionServiceProvider::hashParameter();
 
         /** @var \Clicalmani\Routing\Route */
         foreach ($this->storage as $route) {

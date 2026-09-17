@@ -1,10 +1,10 @@
 <?php
 namespace Clicalmani\Routing;
 
-use Clicalmani\Foundation\Http\Request;
-use Clicalmani\Foundation\Http\RequestInterface;
-use Clicalmani\Foundation\Providers\ServiceProvider;
-use Clicalmani\Foundation\Support\Facades\Config;
+use Clicalmani\Core\Http\Request;
+use Clicalmani\Core\Http\RequestInterface;
+use Clicalmani\Core\Providers\ServiceProvider;
+use Clicalmani\Core\Support\Facades\Config;
 use JsonSerializable;
 
 /**
@@ -250,10 +250,10 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
 
     public function getMiddlewares() : array
     {
-        if (\Clicalmani\Foundation\Support\Facades\Route::isApi()) {
-            $globals = \Clicalmani\Foundation\Http\Middlewares\Api::getGlobals();
+        if (\Clicalmani\Core\Support\Facades\Route::isApi()) {
+            $globals = \Clicalmani\Core\Http\Middlewares\Api::getGlobals();
         } else {
-            $globals = \Clicalmani\Foundation\Http\Middlewares\Web::getGlobals();
+            $globals = \Clicalmani\Core\Http\Middlewares\Web::getGlobals();
         }
         
         return array_unique(array_diff(array_merge($this->middlewares, $globals), $this->excluded_middlewares));
@@ -264,13 +264,13 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
         if (!$this->getMiddlewares()) return 200; // Authorized
         
         foreach ($this->getMiddlewares() as $name_or_class) {
-            if ($middleware = ServiceProvider::getProvidedMiddleware(\Clicalmani\Foundation\Support\Facades\Route::gateway(), $name_or_class)) ;
+            if ($middleware = ServiceProvider::getProvidedMiddleware(\Clicalmani\Core\Support\Facades\Route::gateway(), $name_or_class)) ;
             else $middleware = $name_or_class;
             
             if ( $middleware ) {
-                /** @var \Clicalmani\Foundation\Http\Response */
+                /** @var \Clicalmani\Core\Http\Response */
                 $response = app()->response;
-                /** @var \Clicalmani\Psr\Response|\Clicalmani\Foundation\Http\RedirectInterface */
+                /** @var \Clicalmani\Psr\Response|\Clicalmani\Core\Http\RedirectInterface */
                 $auth = with( new $middleware )->handle(
                     $request,
                     $response,
@@ -281,7 +281,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
                     }
                 );
                 
-                if ($auth instanceof \Clicalmani\Foundation\Http\Redirect) {
+                if ($auth instanceof \Clicalmani\Core\Http\Redirect) {
                     die($auth);
                 }
 

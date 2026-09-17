@@ -1,7 +1,7 @@
 <?php
 namespace Clicalmani\Routing;
 
-use Clicalmani\Foundation\Support\Facades\Config;
+use Clicalmani\Core\Support\Facades\Config;
 
 /**
  * Segment Class

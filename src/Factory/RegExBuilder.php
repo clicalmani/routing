@@ -71,7 +71,7 @@ class RegExBuilder extends \Clicalmani\Routing\Builder implements \Clicalmani\Ro
     {
         return $this->locate(
             $this->matches( 
-                \Clicalmani\Foundation\Support\Facades\Route::getClientVerb()
+                \Clicalmani\Core\Support\Facades\Route::getClientVerb()
             ) 
         );
     }

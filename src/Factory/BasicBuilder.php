@@ -184,7 +184,7 @@ class BasicBuilder extends Builder implements \Clicalmani\Routing\BuilderInterfa
     {
         return $this->locate(
             $this->matches( 
-                \Clicalmani\Foundation\Support\Facades\Route::getClientVerb()
+                \Clicalmani\Core\Support\Facades\Route::getClientVerb()
             ) 
         );
     }

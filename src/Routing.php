@@ -1,9 +1,9 @@
 <?php
 namespace Clicalmani\Routing;
 
-use Clicalmani\Foundation\Providers\ServiceProvider;
-use Clicalmani\Foundation\Support\Facades\Config;
-use Clicalmani\Foundation\Support\Facades\Str;
+use Clicalmani\Core\Providers\ServiceProvider;
+use Clicalmani\Core\Support\Facades\Config;
+use Clicalmani\Core\Support\Facades\Str;
 
 /**
  * Routing Class
@@ -29,7 +29,7 @@ class Routing implements Factory\RoutingInterface
     {
         if ( isConsoleMode() && defined('CONSOLE_API_ROUTE') ) return true;
         
-        $api = \Clicalmani\Foundation\Support\Facades\Config::route('api_prefix');
+        $api = \Clicalmani\Core\Support\Facades\Config::route('api_prefix');
         
         return preg_match(
             "/^\/$api/", 
@@ -365,7 +365,7 @@ class Routing implements Factory\RoutingInterface
 
         $uri = str_replace('{resource}', $main, $uri);
         
-        $route_parameter_prefix = \Clicalmani\Foundation\Support\Facades\Config::route('parameter_prefix');
+        $route_parameter_prefix = \Clicalmani\Core\Support\Facades\Config::route('parameter_prefix');
 
         $bindings = [
             '{id}' => $route_parameter_prefix . Str::singularize($main),

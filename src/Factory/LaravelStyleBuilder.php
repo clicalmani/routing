@@ -30,7 +30,7 @@ class LaravelStyleBuilder extends Builder implements BuilderInterface
 
     public function __construct()
     {
-        $this->internalPrefix = \Clicalmani\Foundation\Support\Facades\Config::route('parameter_prefix') ?: ':';
+        $this->internalPrefix = \Clicalmani\Core\Support\Facades\Config::route('parameter_prefix') ?: ':';
     }
 
     /**
@@ -211,7 +211,7 @@ class LaravelStyleBuilder extends Builder implements BuilderInterface
     {
         return $this->locate(
             $this->matches(
-                \Clicalmani\Foundation\Support\Facades\Route::getClientVerb()
+                \Clicalmani\Core\Support\Facades\Route::getClientVerb()
             )
         );
     }
