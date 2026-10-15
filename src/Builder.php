@@ -25,13 +25,13 @@ abstract class Builder
      * @param \Clicalmani\Routing\Route $route
      * @return bool
      */
-    protected function isBuilt(Route $route) : bool
+    public function isBuilt(Route $route) : bool
     {
         $count = 0;
 
         /** @var \Clicalmani\Routing\Route */
-        foreach (Memory::getRoutesByVerb($route->verb) as $r) {
-            if ($r->uri === $route->uri) $count++;
+        foreach (Registry::getRoutesByVerb($route->verb) as $r) {
+            if ($r->uri === $route->uri && $r->signature() === $route->signature()) $count++;
         }
 
         return $count > 1;

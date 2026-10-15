@@ -2,12 +2,12 @@
 namespace Clicalmani\Routing;
 
 /**
- * Memory Class
+ * Registry Class
  * 
  * @package clicalmani/routing 
  * @author @clicalmani
  */
-class Memory implements Factory\RouteMemoryInterface
+class Registry implements Factory\RouteRegistryInterface
 {
     /**
      * Routes
@@ -74,7 +74,7 @@ class Memory implements Factory\RouteMemoryInterface
 
     public static function getRoutesByVerb(string $verb) : array
     {
-        return @ static::$routes[$verb] ?? [];
+        return static::$routes[$verb] ?? [];
     }
 
     public static function getRoutes() : array
@@ -94,9 +94,8 @@ class Memory implements Factory\RouteMemoryInterface
 
     public static function removeRoute(Route $route, string $verb) : bool
     {
-        /** @var \Clicalmani\Routing\Route $r */
-        foreach (static::$routes[$verb] as $i => $r) {
-            if ($route->equals($r)) {
+        foreach (static::$routes[$verb] ?? [] as $i => $r) {
+            if ($r === $route) {
                 unset(static::$routes[$verb][$i]);
                 return true;
             }
@@ -153,6 +152,11 @@ class Memory implements Factory\RouteMemoryInterface
         if ($group) return static::$current_group = $group;
         return static::$current_group;
     }
+    
+    public static function setCurrentGroup(?Group $group) : void
+    {
+        static::$current_group = $group;
+    }
 
     public static function startRecording(string $name) : void
     {
@@ -178,7 +182,7 @@ class Memory implements Factory\RouteMemoryInterface
             if (static::$recorder) static::$record[static::$recorder][] = $route;
 
             foreach (static::$record as $name => $data) {
-                if (!$data) continue;
+                if ($name === static::$recorder || !$data) continue; 
                 static::$record[$name][] = $route;
             }
 
@@ -191,5 +195,18 @@ class Memory implements Factory\RouteMemoryInterface
     public static function isRecording() : bool
     {
         return static::$is_recording;
+    }
+
+    public static function reset() : void
+    {
+        static::$routes = [];
+        static::$patterns = [];
+        static::$guards = [];
+        static::$record = [];
+        static::$is_recording = false;
+        static::$recorder = '';
+        static::$current_route = null;
+        static::$current_group = null;
+        static::$hooks = [];
     }
 }

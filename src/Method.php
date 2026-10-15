@@ -13,7 +13,7 @@ trait Method
     {
         $uris = [];
         
-        foreach (Memory::getRoutes() as $entry) {
+        foreach (Registry::getRoutes() as $entry) {
             foreach ($entry as $route) {
                 $uris[] = $route->uri;
             }
@@ -38,7 +38,7 @@ trait Method
      */
     public function current(): ?Route
     {
-        return Memory::currentRoute();
+        return Registry::currentRoute();
     }
 
     public function get(string $route, mixed $action = null) : Validator|Group
@@ -77,7 +77,7 @@ trait Method
 
         foreach ($matches as $verb) {
             $verb = strtolower($verb);
-            if ( array_key_exists($verb, Memory::getRoutes()) ) {
+            if (in_array($verb, ['get', 'post', 'put', 'patch', 'delete', 'options'], true)) {
                 $resource[] = $this->register($verb, $uri, $action);
             }
         }
@@ -110,18 +110,18 @@ trait Method
     public function singleton(string $resource, string $controller) : Resource
     {
         return $this->__createResource($resource, $controller, [
-            'get'    => ['show' => '{id}/{nested}/{nid}', 'edit' => '{id}/{nested}/{nid}/edit'],
-            'put'    => ['update' => '{id}/{nested}/{nid}'],
-            'patch'  => ['update' => '{id}/{nested}/{nid}']
+            'get'   => ['show' => '{resource}', 'edit' => '{resource}/edit'],
+            'put'   => ['update' => '{resource}'],
+            'patch' => ['update' => '{resource}']
         ]);
     }
 
     public function apiSingleton(string $resource, string $controller) : Resource
     {
         return $this->__createResource($resource, $controller, [
-            'get'    => ['show' => '{id}/{nested}/{nid}'],
-            'put'    => ['update' => '{id}/{nested}/{nid}'],
-            'patch'  => ['update' => '{id}/{nested}/{nid}'],
+            'get'   => ['show' => '{resource}'],
+            'put'   => ['update' => '{resource}'],
+            'patch' => ['update' => '{resource}']
         ]);
     }
 

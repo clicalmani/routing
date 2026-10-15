@@ -2,7 +2,7 @@
 namespace Clicalmani\Routing\Factory;
 
 use Clicalmani\Routing\Builder;
-use Clicalmani\Routing\Memory;
+use Clicalmani\Routing\Registry;
 use Clicalmani\Routing\Parameter;
 use Clicalmani\Routing\Route;
 use Clicalmani\Routing\Segment;
@@ -46,7 +46,7 @@ class BasicBuilder extends Builder implements \Clicalmani\Routing\BuilderInterfa
         $len = count( $this->create( client_url() ) );
         
         /** @var \Clicalmani\Routing\Route $route */
-        foreach (Memory::getRoutesByVerb($verb) as $route) {
+        foreach (Registry::getRoutesByVerb($verb) as $route) {
             
             if ($len !== count($route) OR $route->isCustom()) continue;
             
@@ -197,18 +197,19 @@ class BasicBuilder extends Builder implements \Clicalmani\Routing\BuilderInterfa
      */
     public function parameters(array $candidates) : array
     {
-        /** @var \Clicalmani\Routing\Parameter[] */
-        $arr = [];
         $client = $this->getClientRoute();
-
-        foreach ($candidates as $match) $arr[] = $match->getSegmentsNames();
-
         $ret = [];
-        
-        foreach (array_diff($client->getSegmentsNames(), ...$arr) as $key => $value) {
+
+        foreach ($client->getSegmentsNames() as $position => $name) {
+            foreach ($candidates as $candidate) {
+                $segment = $candidate[$position] ?? null;
+
+                if ($segment && !$segment->isParameter() && $segment->name === $name) continue 2;
+            }
+
             $param = new Parameter;
-            $param->value = $value;
-            $param->position = $key;
+            $param->value = $name;
+            $param->position = $position;
             $ret[] = $param;
         }
 

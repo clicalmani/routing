@@ -3,7 +3,7 @@ namespace Clicalmani\Routing\Factory;
 
 use Clicalmani\Routing\Builder;
 use Clicalmani\Routing\BuilderInterface;
-use Clicalmani\Routing\Memory;
+use Clicalmani\Routing\Registry;
 use Clicalmani\Routing\Parameter;
 use Clicalmani\Routing\Route;
 use Clicalmani\Routing\Segment;
@@ -88,7 +88,7 @@ class LaravelStyleBuilder extends Builder implements BuilderInterface
         $len = count($this->create($clientUri));
         
         /** @var Route $route */
-        foreach (Memory::getRoutesByVerb($verb) as $route) {
+        foreach (Registry::getRoutesByVerb($verb) as $route) {
             // Skip if length doesn't match or route is custom
             if ($len !== count($route) || $route->isCustom()) {
                 continue;
@@ -222,44 +222,25 @@ class LaravelStyleBuilder extends Builder implements BuilderInterface
      * @param Route[] $candidates
      * @return Parameter[]
      */
-    public function parameters(array $candidates): array
+    public function parameters(array $candidates) : array
     {
-        $arr = [];
         $client = $this->getClientRoute();
-        
-        foreach ($candidates as $match) {
-            $arr[] = $match->getSegmentsNames();
-        }
-        
         $ret = [];
-        
-        foreach (array_diff($client->getSegmentsNames(), ...$arr) as $key => $value) {
+
+        foreach ($client->getSegmentsNames() as $position => $name) {
+            foreach ($candidates as $candidate) {
+                $segment = $candidate[$position] ?? null;
+
+                if ($segment && !$segment->isParameter() && $segment->name === $name) continue 2;
+            }
+
             $param = new Parameter;
-            $param->value = $value;
-            $param->position = $key;
+            $param->value = $name;
+            $param->position = $position;
             $ret[] = $param;
         }
-        
-        return $ret;
-    }
 
-    /**
-     * Check if route is already built
-     * 
-     * @param Route $route
-     * @return bool
-     */
-    public function isBuilt(Route $route): bool
-    {
-        $routes = Memory::getRoutesByVerb($route->verb);
-        
-        foreach ($routes as $existing) {
-            if ($existing->equals($route)) {
-                return true;
-            }
-        }
-        
-        return false;
+        return $ret;
     }
 
     /**
@@ -267,7 +248,7 @@ class LaravelStyleBuilder extends Builder implements BuilderInterface
      * 
      * @return Route
      */
-    private function getClientRoute(): Route
+    protected function getClientRoute(): Route
     {
         $uri = client_url();
         return $this->create($uri);

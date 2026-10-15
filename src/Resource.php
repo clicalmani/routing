@@ -36,13 +36,13 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
 	{
         $user_resource = $this->getUserResource();
 
-        if (get_class($value) === \Clicalmani\Routing\Validator::class) {
+        if ($value instanceof \Clicalmani\Routing\Validator) {
             /** @var \Clicalmani\Routing\Route */
             $route = $value->route;
             $route->main_resource = $user_resource['main'];
             $route->nested_resource = $user_resource['nested'];
             $this->storage->add($route);
-        } elseif (get_class($value) === \Clicalmani\Routing\Group::class) {
+        } elseif ($value instanceof \Clicalmani\Routing\Group) {
             /** @var \Clicalmani\Routing\Route */
             foreach ($value->routes as $route) {
                 $route->main_resource = $user_resource['main'];
@@ -62,7 +62,7 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
         return $this;
     }
 
-    public function distinct(bool $enable = false) : self
+    public function distinct(bool $enable = true) : self
     {
         /** @var \Clicalmani\Routing\Route */
         foreach ($this->storage as $route) {
@@ -72,7 +72,7 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
         return $this;
     }
 
-    public function ignore(bool $enable = false) : self
+    public function ignore(bool $enable = true) : self
     {
         /** @var \Clicalmani\Routing\Route */
         foreach ($this->storage as $route) {
@@ -93,7 +93,7 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
         return $this;
     }
 
-    public function calcRows(bool $enable = false) : self
+    public function calcRows(bool $enable = true) : self
     {
         /** @var \Clicalmani\Routing\Route */
         foreach ($this->storage as $route) {
@@ -154,7 +154,7 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
         /** @var \Clicalmani\Routing\Route */
         foreach ($this->storage as $route) {
             if (is_array($route->action) && !in_array(@$route->action[1], $action)) 
-                Memory::removeRoute($route, $route->verb);
+                Registry::removeRoute($route, $route->verb);
         }
 
         return $this;
@@ -167,7 +167,7 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
         /** @var \Clicalmani\Routing\Route */
         foreach ($this->storage as $route) {
             if (is_array($route->action) && in_array(@$route->action[1], $action)) {
-                Memory::removeRoute($route, $route->verb);
+                Registry::removeRoute($route, $route->verb);
             }
         }
 
@@ -221,9 +221,7 @@ class Resource extends \ArrayObject implements Factory\RouteResourceInterface
         /** @var \Clicalmani\Routing\Route */
         foreach ($this->storage as $route) {
             if ($route->isGettable() && in_array($route->action[1], $actions, true)) {
-                $segment = new Segment;
-                $segment->name = ':' . $hash_parameter;
-                $route->appendSegment($segment);
+                $route->protect();
 
                 if ($prevent_tampering && class_exists(\App\Http\Middlewares\PreventRouteTampering::class)) {
                     $route->addMiddleware(\App\Http\Middlewares\PreventRouteTampering::class);

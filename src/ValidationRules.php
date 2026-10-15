@@ -8,6 +8,11 @@ trait ValidationRules
         return $this->where($params, 'numeric');
     }
 
+    public function whereNum(string|array $params) : self
+    {
+        return $this->whereNumber($params);
+    }
+
     public function whereInt(string|array $params) : self
     {
         return $this->where($params, 'int');
@@ -36,7 +41,7 @@ trait ValidationRules
     public function guardAgainst(string $param, callable $callback) : self
     {
         $uid = uniqid('gard-');
-        Memory::addGuard($uid, $param, $callback);
+        Registry::addGuard($uid, $param, $callback);
         return $this->where($param, 'nguard|uid:' . $uid);
     } 
 

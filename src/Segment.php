@@ -63,7 +63,7 @@ class Segment implements Factory\RouteSegmentInterface
 
     public function makeRequired() : void
     {
-        $this->name = str_replace('?', '', $this->name);
+        $this->name = preg_replace('/^\?/', '', $this->name);
     }
 
     /**
@@ -86,6 +86,8 @@ class Segment implements Factory\RouteSegmentInterface
     {
         $this->validator = $validator;
     }
+
+    public function validatorSignature() : string { return $this->validator?->signature() ?? ''; }
 
     public function equals(Segment $segment) : bool
     {

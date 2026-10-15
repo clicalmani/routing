@@ -1,7 +1,7 @@
 <?php
 namespace Clicalmani\Routing\Factory;
 
-interface RouteMemoryInterface
+interface RouteRegistryInterface
 {
     /**
      * Returns registered routes uris for the specified verb.

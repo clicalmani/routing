@@ -8,7 +8,8 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Clicalmani\\Routing\\": "src/"
+            "Clicalmani\\Routing\\": "src/",
+            "Routing\\Test\\": "tests/"
         }
     },
     "authors": [

@@ -283,4 +283,8 @@ interface RouteInterface
      * @return bool
      */
     public function is(string $uri) : bool;
+
+    public function isProtected() : bool;
+
+    public function protect() : void;
 }

@@ -1,6 +1,7 @@
 <?php
 namespace Clicalmani\Routing;
 
+use Clicalmani\Core\Http\Middlewares\HandlesMiddleware;
 use Clicalmani\Core\Http\Request;
 use Clicalmani\Core\Http\RequestInterface;
 use Clicalmani\Core\Providers\ServiceProvider;
@@ -15,6 +16,8 @@ use JsonSerializable;
  */
 class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializable
 {
+    use HandlesMiddleware;
+
     /**
      * Route uri
      * 
@@ -43,6 +46,8 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
      * @var string
      */
     private string $name = '';
+
+    private int $channel_ttl = 900;
 
     /**
      * Route middlewares
@@ -81,6 +86,13 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
      * @var int
      */
     private ?int $redirect = null;
+
+    /**
+     * Protect
+     * 
+     * @var bool
+     */
+    private bool $protect = false;
 
     /**
      * @override
@@ -177,14 +189,14 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
             } else $ret[] = $segment->name;
         }
         
-        if (join('', $ret) === join('', $this->getSegmentsNames())) return true;
+        if (join('/', $ret) === join('/', $this->getSegmentsNames())) return true;
 
         return false;
     }
 
     public function seemsOptional() : bool
     {
-        return !!preg_match("/\?" . Config::route('parameter_prefix') . ".*([^\/])?/", $this->uri);
+        return !!preg_match('#(^|/)\?' . preg_quote(Config::route('parameter_prefix'), '#') . '#', $this->uri);
     }
 
     public function getOptions() : array
@@ -263,37 +275,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
     {
         if (!$this->getMiddlewares()) return 200; // Authorized
         
-        foreach ($this->getMiddlewares() as $name_or_class) {
-            if ($middleware = ServiceProvider::getProvidedMiddleware(\Clicalmani\Core\Support\Facades\Route::gateway(), $name_or_class)) ;
-            else $middleware = $name_or_class;
-            
-            if ( $middleware ) {
-                /** @var \Clicalmani\Core\Http\Response */
-                $response = app()->response;
-                /** @var \Clicalmani\Psr\Response|\Clicalmani\Core\Http\RedirectInterface */
-                $auth = with( new $middleware )->handle(
-                    $request,
-                    $response,
-                    function(mixed $req = null, mixed $resp = null) use($request, $response) {
-                        $response = $resp ?? $response;
-                        $request = $req ?? $request;
-                        return $response->status(http_response_code());
-                    }
-                );
-                
-                if ($auth instanceof \Clicalmani\Core\Http\Redirect) {
-                    die($auth);
-                }
-
-                Request::current($request);
-                app()->response = $response;
-                $response_code = $auth->getStatusCode();
-
-                if (200 !== $response_code) return $response_code;
-            }
-        }
-        
-        return 200; // Authorized
+        return $this->checkMiddlewares($this->getMiddlewares(), $request);
     }
 
     public function isDoubled() : bool
@@ -301,7 +283,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
         $count = 0;
 
         /** @var \Clicalmani\Routing\Route */
-        foreach (Memory::getRoutesByVerb($this->verb) as $route) {
+        foreach (Registry::getRoutesByVerb($this->verb) as $route) {
             if ($route->name === $this->name) $count++;
         }
 
@@ -325,7 +307,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
             return null;
         }
 
-        return @ $this->hooks['after'];
+        return $this->hooks['after'] ?? null;
     }
 
     public function missing(?callable $callback = null) : mixed
@@ -442,6 +424,24 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
         return isset($this->resources['main']);
     }
 
+    public function isProtected() : bool
+    {
+        return $this->protect;
+    }
+
+    public function protect() : void
+    {
+        $this->protect = true;
+    }
+
+    public function signature() : string
+    {
+        return $this->uri() . '|' . implode(',', array_map(
+            fn(Segment $s) => $s->validatorSignature(),
+            $this->getSegments()
+        ));
+    }
+
     public function __get(string $name)
     {
         return match ($name) {
@@ -452,6 +452,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
             'redirect' => $this->redirect,
             'main_resource' => $this->resources['main'] ?? null,
             'nested_resource' => $this->resources['nested'] ?? null,
+            'channel_ttl' => $this->channel_ttl,
         };
     }
 
@@ -464,6 +465,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
             case 'redirect': $this->redirect = $value; break;
             case 'main_resource': $this->resources['main'] = $value; break;
             case 'nested_resource': $this->resources['nested'] = $value; break;
+            case 'channel_ttl': $this->channel_ttl = $value; break;
             case 'action': 
 
                 /**
@@ -479,7 +481,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
                 elseif ( is_string($value) && $value ) {
                     if ( $action = action($value) ) {
                         $this->action = $action;
-                    } elseif ($group = Memory::currentGroup()) {
+                    } elseif ($group = Registry::currentGroup()) {
                         if ($group->controller) $this->action = [$group->controller, $value];
                         else $this->action = [$value, '__invoke'];
                     }
@@ -497,7 +499,7 @@ class Route extends \ArrayObject implements Factory\RouteInterface, JsonSerializ
                     $this->action = '__invoke';
                 }
                 
-                if ($group = Memory::currentGroup()) {
+                if ($group = Registry::currentGroup()) {
                     $group->addRoute($this);
                 }
             break;

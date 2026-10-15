@@ -34,4 +34,6 @@ class SegmentValidator implements Factory\RouteSegmentValidatorInterface
         
         return $valid;
     }
+
+    public function signature() : string { return json_encode($this->uris); }
 }

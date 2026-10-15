@@ -39,6 +39,9 @@ class Group implements Factory\GroupInterface
      */
     private array $routes = [];
 
+    private ?Group $parent = null;
+    private bool $ran = false;
+
     /**
      * Constructor
      * 
@@ -48,7 +51,8 @@ class Group implements Factory\GroupInterface
     {
         $this->middleware = $middleware;
 
-        Memory::currentGroup($this);
+        $this->parent = Registry::currentGroup();
+        Registry::currentGroup($this);
         if (NULL !== $this->callback) $this->group();
     }
 
@@ -70,15 +74,23 @@ class Group implements Factory\GroupInterface
 
     public function group(?callable $callback = null) : self
     {
-        $this->callback = $callback ?: $this->callback;
+        if ($callback) {
+            $this->callback = $callback;
+            $this->ran = false;             
+        }
+
         return $this->run();
     }
 
     public function run() : self
     {
-        if ($this->callback) call($this->callback);
-        Memory::currentGroup(null);
-        
+        if ($this->callback && !$this->ran) {
+            $this->ran = true;
+            call($this->callback);
+        }
+
+        Registry::setCurrentGroup($this->parent);
+
         if ($this->hasMiddleware()) {
             foreach ($this->routes as $route) {
                 foreach (explode('|', $this->middleware) as $name) $route->addMiddleware($name);
@@ -91,7 +103,7 @@ class Group implements Factory\GroupInterface
     public function prefix(string $prefix) : self
     {
         if ($prefix === \Clicalmani\Core\Support\Facades\Config::route('api_prefix')) {
-            $this->routes = Memory::getRoutesByVerb(\Clicalmani\Core\Support\Facades\Route::getClientVerb());
+            $this->routes = Registry::getRoutesByVerb(\Clicalmani\Core\Support\Facades\Route::getClientVerb());
         }
 
         foreach ($this->routes as $route) {
@@ -161,24 +173,25 @@ class Group implements Factory\GroupInterface
         return $this;
     }
 
-    public function where(string $param, string $rule) : self
+    public function where(string|array $params, string $rule) : self
     {
-        /** @var \Clicalmani\Routing\Route */
+        $params = (array) $params;
+
         foreach ($this->routes as $route) {
-            /** @var \Clicalmani\Routing\Segment */
             foreach ($route as $segment) {
-                if ($segment->getName() === $param) {
-                    $segment->setValidator(new SegmentValidator($param, $rule));
+                if ($segment->isParameter() && in_array($segment->getName(), $params, true)) {
+                    $segment->setValidator(new SegmentValidator($segment->getName(), $rule));
                 }
             }
         }
-        
+
         return $this;
     }
 
     public function addRoute(Route $route) : void
     {
-        $this->routes[] = $route;
+        if (!in_array($route, $this->routes, true)) $this->routes[] = $route;
+        $this->parent?->addRoute($route);
     }
 
     /**
@@ -193,7 +206,7 @@ class Group implements Factory\GroupInterface
 
     public function getMiddleware() : string
     {
-        return $this->middleware;
+        return (string) $this->middleware;
     }
 
     public function setMiddleware(string $middleware) : void
@@ -209,10 +222,15 @@ class Group implements Factory\GroupInterface
 
     public function name(string $name)
     {
-        /** @var \Clicalmani\Routing\Route */
         foreach ($this->routes as $route) {
-            $route->name = $name;
+            foreach (Registry::getRoutesByVerb($route->verb) as $other) {
+                if ($other->name === $name && !in_array($other, $this->routes, true)) {
+                    throw new \Exception(sprintf("There is an existing route with the same name %s.", $name));
+                }
+            }
         }
+
+        foreach ($this->routes as $route) $route->name = $name;
     }
 
     /**

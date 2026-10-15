@@ -21,7 +21,7 @@ class Validator implements Factory\ValidatorInterface
         /**
          * Validate global patterns
          */
-        foreach (Memory::getGlobalPatterns() as $param => $pattern) {
+        foreach (Registry::getGlobalPatterns() as $param => $pattern) {
             /** @var \Clicalmani\Routing\Segment */
             foreach ($this->route as $segment) {
                 if ($segment->getName() === $param) {
@@ -53,7 +53,7 @@ class Validator implements Factory\ValidatorInterface
 
     public function bind() : void
     {
-        Memory::addRoute($this->route);
+        Registry::addRoute($this->route);
     }
 
     /**
@@ -107,5 +107,17 @@ class Validator implements Factory\ValidatorInterface
                 sprintf("There is an existing route with the same name %s.", $name)
             );
         }
+    }
+
+    public function withoutMiddleware(string|array $name_or_class) : self
+    {
+        foreach ((array) $name_or_class as $name) $this->route->excludeMiddleware($name);
+        return $this;
+    }
+
+    public function scoped(array $scope) : self
+    {
+        $this->route->scoped($scope);
+        return $this;
     }
 }

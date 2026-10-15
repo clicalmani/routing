@@ -11,26 +11,26 @@ class Record implements Factory\RoutesRecordingInterface
 {
     public static function start(string $name) : void
     {
-        Memory::startRecording($name);
+        Registry::startRecording($name);
     }
 
     public static function stop() : void
     {
-        Memory::stopRecording();
+        Registry::stopRecording();
     }
 
     public static function add(Route $route) : void
     {
-        Memory::record($route);
+        Registry::record($route);
     }
 
     public static function get() : array
     {
-        return Memory::record();
+        return Registry::record();
     }
 
     public static function clear() : void
     {
-        Memory::clearRecord();
+        Registry::clearRecord();
     }
 }

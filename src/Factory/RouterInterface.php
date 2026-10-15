@@ -1,7 +1,7 @@
 <?php
 namespace Clicalmani\Routing\Factory;
 
-interface RoutingInterface
+interface RouterInterface
 {
     /**
      * Returns client's verb

@@ -85,11 +85,11 @@ interface GroupInterface
     /**
      * Validate parameter's value against any validator.
      * 
-     * @param string $param
+     * @param string|array $param
      * @param string $rule
      * @return self
      */
-    public function where(string $param, string $rule) : self;
+    public function where(string|array $params, string $rule) : self;
 
     /**
      * Validate parameter's value against a regular expression.

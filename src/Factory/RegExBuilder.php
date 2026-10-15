@@ -39,7 +39,7 @@ class RegExBuilder extends \Clicalmani\Routing\Builder implements \Clicalmani\Ro
         $candidates = [];
         $this->client = $this->getClientRoute();
 
-        foreach (\Clicalmani\Routing\Memory::getRoutesByVerb($verb) as $route) {
+        foreach (\Clicalmani\Routing\Registry::getRoutesByVerb($verb) as $route) {
             if ($route->uri && !preg_match("/{$this->sanitizeUri($route->uri)}/", trim($this->client->uri, ' /'))) continue;
 
             if ($this->isBuilt($route)) 
